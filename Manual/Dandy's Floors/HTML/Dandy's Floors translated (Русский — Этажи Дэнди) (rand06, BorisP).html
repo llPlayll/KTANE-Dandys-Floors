@@ -1,0 +1,515 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="initial-scale=1">
+    <title>Этажи Дэнди — Keep Talking and Nobody Explodes Module</title>
+    <link rel="stylesheet" type="text/css" href="css/font.css">
+    <link rel="stylesheet" type="text/css" href="css/normalize.css">
+    <link rel="stylesheet" type="text/css" href="css/main.css">
+    <link rel="stylesheet" type="text/css" href="css/font-cyrillic.css">
+    <script src="js/ktane-utils.js"></script>
+    <style>
+	table{
+		font-weight: normal;
+	}
+    </style>
+</head>
+<body>
+    <div class="section">
+        <div class="page page-bg-01">
+            <div class="page-header">
+                <span class="page-header-doc-title">Keep Talking and Nobody Explodes Mod</span>
+                <span class="page-header-section-title">Этажи Дэнди</span>
+            </div>
+            <div class="page-content">
+                <img src="img/Component/Dandy's Floors.svg" class="diagram">
+                <h2>О Этажах Дэнди</h2>
+                <p class="flavour-text">
+                    К сожалению, этот Дэнди более жесток, чем та приставка из восьмидесятых.
+                </p>
+				<ul>
+					<li>Изначально на модуле будет виден цветок с 6 разноцветными лепестками. Для решения данного модуля, вам потребуется создать симуляцию сессии игры в Dandy's World и отправить общее количество полученного ихора за данную сессию.</li>
+					<li>Переведите серийный номер бомбы в двоичную систему счисления. Если получившееся число больше чем 31 бит, смещайте СН влево на 1 символ (например: ZY4AS2 → Y4AS2Z) до тех пор, пока число не станет короче, чем 32 бита. Если такого не случается после 6 попыток, <b>нажмите на цветок и отправьте 0 ихора в качестве вашего ответа</b>. Если число короче, чем 31 бит, не нужно добавлять начальные нули. Удалите первый бит, полученная последовательность битов называется стартовым зерном.
+					<li>После решения другого модуля, этот модуль перейдет в основной режим. Для каждого этажа учитывайте количество машин, указанное сверху (Machines: #), а также, какие противники были на данном этаже (от 2 до 6).</li>
+				</ul>
+				<h3>Основные правила:</h3>
+				<ol>
+					<li>У обычных персонажей 3 очка здоровья и 3 слота в инвентаре. У мэйн-персонажей 2 очка здоровья и 3 слота в инвентаре. Для того, чтобы узнать, за кого вы играете, ознакомьтесь со стр. 11-12 инструкции.</li>
+					<li>За использование предмета добавляется ихор:
+						<ul>
+							<li>Обычный предмет: 1 ихор.</li>
+							<li>Необычный предмет: 2 ихора.</li>
+							<li>Редкий предмет: 3 ихора.</li>
+							<li>Очень редкий предмет: 5 ихора.</li>
+							<li>Сверхредкий предмет: 10 ихора.</li>
+						</ul>
+					</li>
+					<li>За каждого противника добавляется ихор:
+						<ul>
+							<li>Обычный противник: 5 ихора.</li>
+							<li>Необычный противник: 6 ихора.</li>
+							<li>Редкий противник: 8 ихора.</li>
+							<li>Мэйн-противник: 10 ихора.</li>
+							<li>Смертельный противник: 25 ихора.</li>
+						</ul>
+						Также, если на этаже есть противник, совпадающий с персонажем, за которого вы играете, то начисляется дополнительное вознаграждение в виде 40 ихора.
+					</li>
+					<li>За каждую машину на этаже дается 5 ихора.</li>
+					<li>Если на этаже найден пластырь или аптечка и инвентарь игрока заполнен, используется последний предмет в инвентаре, не являющийся пластырем или аптечкой. На место использованного предмета устанавливается пластырь/аптечка. Замечания:
+						<h4>Если вы играете не за мэйн-персонажа:</h4>
+						
+					</li>
+				</ol>
+            </div>
+            <div class="page-footer relative-footer">Страница 1 из 12</div>
+        </div>
+        
+        <div class="page page-bg-02">
+            <div class="page-header">
+                <span class="page-header-doc-title">Keep Talking and Nobody Explodes Mod</span>
+                <span class="page-header-section-title">Этажи Дэнди</span>
+            </div>
+            <div class="page-content">
+			<ol start=5>
+						<ul>
+							<li>Если у игрока 1 или 2 очка здоровья и в инвентаре есть пластырь, то пластырь используется, добавляя 1 очко здоровья.</li>
+							<li>Иначе, если у игрока 1 очко здоровья и у игрока есть аптечка, но нет пластыря, то используется аптечка, добавляя 2 очка здоровья.</li>
+							<li>Если у игрока 3 очка здоровья и 3 аптечки в инвентаре, <b>отправьте 9999 ихора в качестве ответа.</b></li>
+						</ul>
+					<h4>Иначе:</h4>
+					<ul>
+						<li>Если у игрока 1 очко здоровья и в инвентаре есть пластырь/аптечка, то пластырь/аптечка используется, добавляя 1 очко здоровья.</li>
+						<li>Если у игрока 2 очка здоровья и 3 пластыря/аптечки (не обязательно 3 пластыря или 3 аптечки, как вариант, 2 пластыря и 1 аптечка тоже считаются) в инвентаре, <b>отправьте 4999 ихора в качестве ответа.</b></li>
+					</ul>
+			</ol>
+			<h3>Противники и их правила:</h3>
+			<table>
+				<tr>
+                    <th>Противник, редкость</th>
+					<th>Правило</th>
+                </tr>
+				<tr>
+                    <td><img src="img\Dandy's Floors\Boxten.png" width="145" height="145"></td>
+					<td rowspan="2">Наносит 1 урона, если номер этажа - простое число.</td></tr><tr>
+                    <td style="text-align: center;">Бокстен, обычный</td>
+                </tr>
+				<tr>
+                    <td><img src="img\Dandy's Floors\Cosmo.png" width="145" height="145"></td>
+					<td rowspan="2">Наносит 1 урона, если на этаже есть Дэнди или Спраут.</td></tr><tr>
+                    <td style="text-align: center;">Космо, обычный</td>
+                </tr>
+				<tr>
+                    <td><img src="img\Dandy's Floors\Poppy.png" width="145" height="145"></td>
+					<td rowspan="2">Наносит 1 урона, если номер этажа присутствует в последовательности Фибоначчи и больше 7.</td></tr><tr>
+                    <td style="text-align: center;">Поппи, обычный</td>
+                </tr>
+			</table>
+            </div>
+            <div class="page-footer relative-footer">Страница 2 из 12</div>
+        </div>
+		
+		<div class="page page-bg-03">
+            <div class="page-header">
+                <span class="page-header-doc-title">Keep Talking and Nobody Explodes Mod</span>
+                <span class="page-header-section-title">Этажи Дэнди</span>
+            </div>
+            <div class="page-content">
+			<table>
+				<tr>
+                    <th>Противник, редкость</th>
+					<th>Правило</th>
+                </tr>
+				<tr>
+                    <td><img src="img\Dandy's Floors\Looey.png" width="150" height="150"></td>
+					<td rowspan="2">Наносит 1 урона, если в инвентаре есть Гудок. После получения урона Гудок используется.</td></tr><tr>
+                    <td style="text-align: center;">Луи, обычный</td>
+                </tr>
+				<tr>
+                    <td><img src="img\Dandy's Floors\Shrimpo.png" width="150" height="150"></td>
+					<td rowspan="2">Наносит 1 урона, если количество машин больше 8 и вы не играете за Финна.</td></tr><tr>
+                    <td style="text-align: center;">Шримпо, обычный</td>
+                </tr>
+				<tr>
+                    <td><img src="img\Dandy's Floors\Tisha.png" width="150" height="150"></td>
+					<td rowspan="2">Наносит 1 урона, если количество противников на этаже - 6.</td></tr><tr>
+                    <td style="text-align: center;">Тиша, обычный</td>
+                </tr>
+				<tr>
+                    <td><img src="img\Dandy's Floors\Brightney.png" width="150" height="150"></td>
+					<td rowspan="2">Наносит 1 урона, если этаж назад был отключен свет. На первом этаже урона не наносит.</td></tr><tr>
+                    <td style="text-align: center;">Брайтни, необычный</td>
+                </tr>
+			</table>
+            </div>
+            <div class="page-footer relative-footer">Страница 3 из 12</div>
+        </div>
+		
+		<div class="page page-bg-04">
+            <div class="page-header">
+                <span class="page-header-doc-title">Keep Talking and Nobody Explodes Mod</span>
+                <span class="page-header-section-title">Этажи Дэнди</span>
+            </div>
+            <div class="page-content">
+				<table>
+				<tr>
+                    <th>Противник, редкость</th>
+					<th>Правило</th>
+                </tr>
+				<tr>
+                    <td><img src="img\Dandy's Floors\Connie.png" width="150" height="150"></td>
+					<td rowspan="2">Наносит 1 урона, если на этаже есть Финн или Астро.</td></tr><tr>
+                    <td style="text-align: center;">Конни, необычный</td>
+                </tr>
+				<tr>
+                    <td><img src="img\Dandy's Floors\Finn.png" width="150" height="150"></td>
+					<td rowspan="2">Наносит 1 урона, если машин больше 8 или вы играете за Шримпо.</td></tr><tr>
+                    <td style="text-align: center;">Финн, необычный</td>
+                </tr>
+				<tr>
+                    <td><img src="img\Dandy's Floors\RazzleDazzle.png" width="150" height="150"></td>
+					<td rowspan="2">Не наносит урона. Этот противник слишком прост, чтобы получать урон от него.</td></tr><tr>
+                    <td style="text-align: center;">Раззл и Даззл, необычный</td>
+                </tr>
+				<tr>
+                    <td><img src="img\Dandy's Floors\Rodger.png" width="150" height="150"></td>
+					<td rowspan="2">Наносит 1 урона, если выполняются все условия:<ul>
+						<li>Инвентарь заполнен не полностью.</li>
+						<li>На данный момент количество ихора меньше 160.</li>
+						<li>Хотя бы один из предметов на этаже очень редкий или сверхредкий.</li>
+						<li>В инвентаре нет Кнопки спуска.</li>
+					</ul>						
+					</td></tr><tr>
+                    <td style="text-align: center;">Роджер, необычный</td>
+                </tr>
+				</table>
+            </div>
+            <div class="page-footer relative-footer">Страница 4 из 12</div>
+        </div>
+		
+		<div class="page page-bg-05">
+            <div class="page-header">
+                <span class="page-header-doc-title">Keep Talking and Nobody Explodes Mod</span>
+                <span class="page-header-section-title">Этажи Дэнди</span>
+            </div>
+            <div class="page-content">
+				<table>
+				<tr>
+                    <th>Противник, редкость</th>
+					<th>Правило</th>
+                </tr>
+				<tr>
+                    <td><img src="img\Dandy's Floors\Teagan.png" width="150" height="150"></td>
+					<td rowspan="2">Наносит 1 урона, если в данный момент (после добавления 6 ихора за необычного противника) у вас больше 600 ихора. При получении урона отнимите 100 ихора.</td></tr><tr>
+                    <td style="text-align: center;">Теаган, необычный</td>
+                </tr>
+				<tr>
+                    <td><img src="img\Dandy's Floors\Toodles.png" width="150" height="150"></td>
+					<td rowspan="2">Наносит 1 урона, если на этаже есть Роджер.</td></tr><tr>
+                    <td style="text-align: center;">Тудлс, необычный</td>
+                </tr>
+				<tr>
+                    <td><img src="img\Dandy's Floors\Flutter.png" width="150" height="150"></td>
+					<td rowspan="2">Наносит 1 урона, если вы играете за Конни или Шримпо на любом этаже или за Раззла и Даззла на чётном этаже. Все Банки газировки и Бутылки газировки которые у вас были используются вне зависимости от того, получили ли вы урон или нет.</td></tr><tr>
+                    <td style="text-align: center;">Флаттер, редкий</td>
+                </tr>
+				<tr>
+                    <td><img src="img\Dandy's Floors\Gigi.png" width="150" height="150"></td>
+					<td rowspan="2">Наносит 1 урона, если ваш инвентарь пуст, иначе крадет предмет на первом непустом слоте. Кража/нанесение урона происходит после того, как вы использовали предметы в правилах всех противников на этаже, и до того, как вы применили правила предметов.</td></tr><tr>
+                    <td style="text-align: center;">Гиги, редкий</td>
+                </tr>
+				</table>
+            </div>
+            <div class="page-footer relative-footer">Страница 5 из 12</div>
+        </div>
+		
+		<div class="page page-bg-06">
+            <div class="page-header">
+                <span class="page-header-doc-title">Keep Talking and Nobody Explodes Mod</span>
+                <span class="page-header-section-title">Этажи Дэнди</span>
+            </div>
+            <div class="page-content">
+				<table>
+				<tr>
+                    <th>Противник, редкость</th>
+					<th>Правило</th>
+                </tr>
+				<tr>
+                    <td><img src="img\Dandy's Floors\Glisten.png" width="150" height="150"></td>
+					<td rowspan="2">Наносит 1 урона, если на этаже 4 машины. Также дополнительно наносит 1 урона, если вы играете за Шримпо или Глистена.</td></tr><tr>
+                    <td style="text-align: center;">Глистен, редкий</td>
+                </tr>
+				<tr>
+                    <td><img src="img\Dandy's Floors\Goob.png" width="150" height="150"></td>
+					<td rowspan="2">Наносит 1 урона, если номер этажа - составное число. Иначе:
+					<ul><li>Если на этаже нет Дэнди, <b>ни одно правило противника не применяется</b>.</li><li>Если на этаже есть Дэнди, то наносится 1 урона трижды (вы все еще можете избежать смерти при наличии пластыря/аптечки).</li></ul></td></tr><tr>
+                    <td style="text-align: center;">Губ, редкий</td>
+                </tr>
+				<tr>
+                    <td><img src="img\Dandy's Floors\Scraps.png" width="150" height="150"></td>
+					<td rowspan="2">Наносит 1 урона, если номер этажа не делится на 3. Также дополнительно наносит 1 урона, если на этаже есть Губ.</td></tr><tr>
+                    <td style="text-align: center;">Скрэпс, редкий</td>
+                </tr>
+				<tr>
+                    <td><img src="img\Dandy's Floors\Astro.png" width="150" height="150"></td>
+					<td rowspan="2">При наличии Астро на этаже <b>модуль отображает некорректное количество машин на данном этаже</b>. Умножьте отображаемое значение на 1.25 и прибавьте к этому произведению кол-во элементов питания. Результат округлите вниз.<br>Наносит 1 урона если количество машин делится на 4 и больше 7.</td></tr><tr>
+                    <td style="text-align: center;">Астро, мэйн</td>
+                </tr>
+				</table>
+            </div>
+            <div class="page-footer relative-footer">Страница 6 из 12</div>
+        </div>
+		
+		<div class="page page-bg-07">
+            <div class="page-header">
+                <span class="page-header-doc-title">Keep Talking and Nobody Explodes Mod</span>
+                <span class="page-header-section-title">Этажи Дэнди</span>
+            </div>
+            <div class="page-content">
+				<table>
+				<tr>
+                    <th>Противник, редкость</th>
+					<th>Правило</th>
+                </tr>
+				<tr>
+                    <td><img src="img\Dandy's Floors\Pebble.png" width="150" height="150"></td>
+					<td rowspan="2">Наносит 1 урона, если номер этажа не делится на 11. Условие инвертируется при наличии Дэнди на этаже.</td></tr><tr>
+                    <td style="text-align: center;">Пэббл, мэйн</td>
+                </tr>
+				<tr>
+                    <td><img src="img\Dandy's Floors\Shelly.png" width="150" height="150"></td>
+					<td rowspan="2">Наносит 1 урона, если на этаже отсутствует Ви или вы не играете за Ви. Условие не выполняется, если в инвентаре есть хотя бы 1 Скилл-конфета или 1 Конфета Энигмы.</td></tr><tr>
+                    <td style="text-align: center;">Шелли, мэйн</td>
+                </tr>
+				<tr>
+                    <td><img src="img\Dandy's Floors\Sprout.png" width="150" height="150"></td>
+					<td rowspan="2">Наносит 1 урона, если выполняется хотя бы одно условие:<ul>
+					<li>Вы играете за Космо.</li>
+					<li>Количество использованных Протеиновых батончиков нечетно за всю сессию.</li>
+					</ul></td></tr><tr>
+                    <td style="text-align: center;">Спраут, мэйн</td>
+                </tr>
+				<tr>
+                    <td><img src="img\Dandy's Floors\Vee.png" width="150" height="150"></td>
+					<td rowspan="2">Наносит 1 урона.</td></tr><tr>
+                    <td style="text-align: center;">Ви, мэйн</td>
+                </tr>
+				</table>
+            </div>
+            <div class="page-footer relative-footer">Страница 7 из 12</div>
+        </div>
+		
+		<div class="page page-bg-01">
+            <div class="page-header">
+                <span class="page-header-doc-title">Keep Talking and Nobody Explodes Mod</span>
+                <span class="page-header-section-title">Этажи Дэнди</span>
+            </div>
+            <div class="page-content">
+				<table>
+				<tr>
+                    <th>Противник, редкость</th>
+					<th>Правило</th>
+                </tr>
+				<tr>
+                    <td><img src="img\Dandy's Floors\Dandy.png" width="150" height="150"></td>
+					<td rowspan="2">Посчитайте очки по этому правилу:<br>
+					Если предмет по номеру в порядке использования нечетный, прибавьте очки. Если четный - отнимите.
+					<ul>
+						<li>Обычный предмет: 0 очков.</li>
+						<li>Необычный предмет: 1 очко.</li>
+						<li>Редкий предмет: 2 очка.</li>
+						<li>Очень редкий предмет: 3 очка.</li>
+						<li>Сверхредкий предмет: 4 очка.</li>
+					</ul>
+					Если финальное количество очков делится на 5 и на этаже нет мэйн-противников, моментально убивает.
+					</td></tr><tr>
+                    <td style="text-align: center;">Дэнди, смертельный</td>
+                </tr>
+				</table>
+				
+				<h3>Предметы и их правила:</h3>
+				<table>
+				<tr>
+                    <th>Предмет, редкость</th>
+					<th>Правило</th>
+                </tr>
+				<tr>
+                    <td><img src="img\Dandy's Floors\items\Gumballs_Item.png"></td>
+					<td rowspan="2">Используется сразу. (Все за этаж)</td></tr><tr>
+                    <td style="text-align: center;">Жевачки, обычный</td>
+                </tr>
+				<tr>
+                    <td><img src="img\Dandy's Floors\items\Chocolate_Item.png"></td>
+					<td rowspan="2">Используется при наличии необычного противника. (Один за этаж)</td></tr><tr>
+                    <td style="text-align: center;">Шоколад, обычный</td>
+                </tr>
+				<tr>
+                    <td><img src="img\Dandy's Floors\items\Pop.png"></td>
+					<td rowspan="2">Используется при наличии необычного противника. (Одну за этаж)</td></tr><tr>
+                    <td style="text-align: center;">Банка газировки, обычный</td>
+                </tr>
+				</table>
+            </div>
+            <div class="page-footer relative-footer">Страница 8 из 12</div>
+        </div>
+		
+		<div class="page page-bg-02">
+            <div class="page-header">
+                <span class="page-header-doc-title">Keep Talking and Nobody Explodes Mod</span>
+                <span class="page-header-section-title">Этажи Дэнди</span>
+            </div>
+            <div class="page-content">
+				<table>
+				<tr>
+                    <th>Предмет, редкость</th>
+					<th>Правило</th>
+                </tr>
+				<tr>
+                    <td><img src="img\Dandy's Floors\items\Speed_Candy_Item.png"></td>
+					<td rowspan="2">Используется при наличии Теаган, Тудлс, Флаттер, Гиги, Астро, Пэббла, Шелли или Спраута. (Одну за этаж)</td></tr><tr>
+                    <td style="text-align: center;">Конфета скорости, необычный</td>
+                </tr>
+				<tr>
+                    <td><img src="img\Dandy's Floors\items\Protein_Bar.png"></td>
+					<td rowspan="2">Используется при наличии двух противников из этого списка: Теаган, Тудлс, Флаттер, Гиги, Астро, Пэббл, Шелли, Спраут. (Один за этаж)</td></tr><tr>
+                    <td style="text-align: center;">Протеиновый батончик, необычный</td>
+                </tr>
+				<tr>
+                    <td><img src="img\Dandy's Floors\items\Stealth_Candy.png"></td>
+					<td rowspan="2">Используется, если на этаже есть мэйн-противник. (Одну за этаж)</td></tr><tr>
+                    <td style="text-align: center;">Стэлс-конфета, необычный</td>
+                </tr>
+				<tr>
+                    <td><img src="img\Dandy's Floors\items\Skill_Check_Candy_Item.png"></td>
+					<td rowspan="2">Используется сразу. (Все за этаж)</td></tr><tr>
+                    <td style="text-align: center;">Скилл-конфета, необычный</td>
+                </tr>
+				<tr>
+                    <td><img src="img\Dandy's Floors\items\Jumper_Cable_Item.png"></td>
+					<td rowspan="2">Используется сразу. (Все за этаж)</td></tr><tr>
+                    <td style="text-align: center;">Крокодильчики, редкий</td>
+                </tr>
+							
+				
+				</table>
+            </div>
+            <div class="page-footer relative-footer">Страница 9 из 12</div>
+        </div>
+		
+		<div class="page page-bg-03">
+            <div class="page-header">
+                <span class="page-header-doc-title">Keep Talking and Nobody Explodes Mod</span>
+                <span class="page-header-section-title">Этажи Дэнди</span>
+            </div>
+            <div class="page-content">
+				<table>
+				<tr>
+                    <th>Предмет, редкость</th>
+					<th>Правило</th>
+                </tr>
+				<tr>
+                    <td><img src="img\Dandy's Floors\items\Bandage.png"></td>
+					<td rowspan="2">Смотрите стр. 1-2.</td></tr><tr>
+                    <td style="text-align: center;">Пластырь, редкий</td>
+                </tr>
+				<tr>
+                    <td><img src="img\Dandy's Floors\items\Enigma_Candy.png"></td>
+					<td rowspan="2">Используется сразу. (Одну за этаж)</td></tr><tr>
+                    <td style="text-align: center;">Конфета Энигмы, редкий</td>
+                </tr>
+				<tr>
+                    <td><img src="img\Dandy's Floors\items\AirHorn.png"></td>
+					<td rowspan="2">Используется сразу. (Все за этаж)</td></tr><tr>
+                    <td style="text-align: center;">Гудок, редкий</td>
+                </tr>
+				<tr>
+                    <td><img src="img\Dandy's Floors\items\Pop2.png"></td>
+					<td rowspan="2">Используется при наличии необычного противника. (Одну за этаж)</td></tr><tr>
+                    <td style="text-align: center;">Бутылка газировки, очень редкий</td>
+                </tr>
+				<tr>
+                    <td><img src="img\Dandy's Floors\items\Health_Kit.png"></td>
+					<td rowspan="2">Смотрите стр. 1-2.</td></tr><tr>
+                    <td style="text-align: center;">Аптечка, очень редкий</td>
+                </tr>
+				
+				
+				</table>
+            </div>
+            <div class="page-footer relative-footer">Страница 10 из 12</div>
+        </div>
+		
+		<div class="page page-bg-04">
+            <div class="page-header">
+                <span class="page-header-doc-title">Keep Talking and Nobody Explodes Mod</span>
+                <span class="page-header-section-title">Этажи Дэнди</span>
+            </div>
+            <div class="page-content">
+				<table>
+				<tr>
+                    <th>Предмет, редкость</th>
+					<th>Правило</th>
+                </tr>
+				<tr>
+                    <td><img src="img\Dandy's Floors\items\Valentines_gift.png"></td>
+					<td rowspan="2">Используется при наличии необычного противника. Имеет 5 использований. (Одно использование за раз)</td></tr><tr>
+                    <td style="text-align: center;">Коробка шоколадок, очень редкий</td>
+                </tr>
+				<tr>
+                    <td><img src="img\Dandy's Floors\items\EjectButton.png"></td>
+					<td rowspan="2">Используется при наличии Роджера на этаже. (Одну за раз)</td></tr><tr>
+                    <td style="text-align: center;">Кнопка спуска, сверхредкий</td>
+                </tr>
+				<tr>
+                    <td><img src="img\Dandy's Floors\items\Smoke_Bomb_Item.png"></td>
+					<td rowspan="2">Используется если на этаже более 4 противников. (Одну за раз)</td></tr><tr>
+                    <td style="text-align: center;">Дымовая бомба, сверхредкий</td>
+                </tr>
+				</table>
+				<h3>Как продлить зерно:</h3>
+				Начального зерна скорее всего не хватит, поэтому его нужно продлевать.<br>
+				Для продления зерна сместите по Цезарю серийный номер на 1 вперед (после 9 идет A, после Z идет 0, например: 578ZK5 → 6890L6). Переведите результат в двоичную систему счисления, возьмите последних (длина начального зерна) бита. Вычислите побитовый XOR между этим результатом и начальным зерном. Новый результат будет дополнением зерна.<br>
+				В следующей итерации сместите серийный номер еще на 1 вперед (т.е. 6890L6 → 79A1M7) и повторите.<br>
+				Максимальное количество итераций: 35. Если после 35 итераций длины полученного зерна недостаточно, просто продублируйте полученное зерно столько раз, сколько потребуется.
+				<h3>Получение псевдо-случайной информации:</h3>
+				Настоятельно рекомендуется помечать, какие биты зерна уже были использованы. Далее инструкция будет требовать "запросить N битов". Запрос N битов возвращает первые N неиспользуемые биты и помечает их использованными.
+            </div>
+            <div class="page-footer relative-footer">Страница 11 из 12</div>
+        </div>
+		
+		<div class="page page-bg-05">
+            <div class="page-header">
+                <span class="page-header-doc-title">Keep Talking and Nobody Explodes Mod</span>
+                <span class="page-header-section-title">Этажи Дэнди</span>
+            </div>
+            <div class="page-content">
+				<ol>
+					<li>Запросите 23 бита. Переведите эту последовательность в десятичную систему счисления и найдите результат по модулю 23. Прибавьте к новому результату 1, это номер в таблице вашего персонажа.</li>
+					<li>В начале каждого этажа запросите 2 бита. Переведите в десятичную систему, добавьте 1. Это - количество предметов на этаже.</li>
+					<li>Запрашивайте биты либо до первого "0", либо максимум 5 битов. В зависимости от результата вы получите редкость предмета:
+					<ul>
+						<li>0 или 10 - обычный.</li>
+						<li>110 - необычный.</li>
+						<li>1110 - редкий.</li>
+						<li>11110 - очень редкий.</li>
+						<li>11111 - сверхредкий.</li>
+					</ul></li>
+					<li>Если редкость предмета - сверхредкая, запросите 1 бит, прибавьте к нему 1 - это номер предмета среди своей редкости. Иначе запросите 2 бита, переведите в десятичную систему счисления, возьмите по модулю (количество возможных предметов данной редкости) и прибавьте 1 - это номер предмета.</li>
+					<li>Повторяйте пункты 3 и 4 для всех предметов на этаже.</li>
+				</ol>
+				<h3>Отправка ответа:</h3>
+				Если в какой-то момент времени ваше здоровье достигает нуля, досчитайте все правила этого этажа до конца и нажмите кнопку "SUBMIT?". Если вы нажали кнопку на нужном этапе, модуль перейдет в режим отправки. Если вы нажали кнопку слишком рано, то модуль зарегистрирует ошибку. Если вы перешли к следующему этапу, когда требовалось нажать кнопку, <b>ТО МОДУЛЬ БУДЕТ РЕГИСТРИРОВАТЬ ОШИБКИ, ПОКА БОМБА НЕ ВЗОРВЕТСЯ ИЛИ МОДУЛЬ НЕ РЕШИТСЯ НЕЧЕСТНЫМ ПУТЕМ</b>. Однако, после нажатия кнопки "SUBMIT?", модуль не будет регистрировать ошибки при переходе на следующий этап. Также, если все решаемые неигнорируемые модули решены, то этот модуль перейдет в режим отправки самостоятельно, без нажатия кнопки.<br>
+				В режиме отправки потребуется ввести финальное количество полученного ихора по модулю 10000. Если введенное количество верно, модуль решится. Иначе, модуль получит возможность перейти в режим восстановления.
+				<h3>Режим восстановления:</h3>
+				Режим восстановления позволяет восстановить упущенные этапы. Для перехода в этот режим нажмите на экран. Модуль покажет свое состояние, начиная с первого этажа. Для перехода на следующий этаж нажмите любую клетку с противником. Для досрочного выхода из режима восстановления нажмите кнопку "SUBMIT?".
+            </div>
+            <div class="page-footer relative-footer">Страница 12 из 12</div>
+        </div>
+		
+		
+		
+		
+		
+    </div>
+</body>
+</html>
