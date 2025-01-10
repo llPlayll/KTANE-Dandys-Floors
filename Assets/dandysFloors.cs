@@ -179,6 +179,8 @@ public class dandysFloors : MonoBehaviour
 
         CalculateSeed();
         StageMode.gameObject.SetActive(false);
+        StrikeMode.gameObject.SetActive(false);
+        SubmissionMode.gameObject.SetActive(false);
     }
 
     void Update()
