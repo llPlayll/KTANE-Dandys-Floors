@@ -57,6 +57,7 @@ public class dandysFloors : MonoBehaviour
     int[] inventory = new int[3] { -1, -1, -1 };
     List<int> usedRarities = new List<int>();
     int proteinBarsUsed;
+    bool detonating;
 
     int floor, machines;
     bool[] enemies = new bool[24];
@@ -142,7 +143,6 @@ public class dandysFloors : MonoBehaviour
         inStages = true;
         DandyIcon.gameObject.SetActive(false);
         StageMode.SetActive(true);
-        GetComponent<KMSelectable>().UpdateChildrenProperly();
     }
 
     void EnterStrikeMode()
@@ -150,7 +150,6 @@ public class dandysFloors : MonoBehaviour
         inSubmission = true;
         StageMode.SetActive(false);
         StrikeMode.SetActive(true);
-        GetComponent<KMSelectable>().UpdateChildrenProperly();
         StartCoroutine("StrikeStrikeStrike");
     }
 
@@ -160,7 +159,6 @@ public class dandysFloors : MonoBehaviour
         DandyIcon.gameObject.SetActive(false);
         StageMode.SetActive(false);
         SubmissionMode.SetActive(true);
-        GetComponent<KMSelectable>().UpdateChildrenProperly();
         Log($"Entering submission mode: correct answer - {ichor} ichor.");
     }
 
@@ -785,13 +783,12 @@ public class dandysFloors : MonoBehaviour
     IEnumerator StrikeStrikeStrike()
     {
         Log("You were supposed to press the submit button, but you didn't! Detonating the bomb...");
-        while (!ModuleSolved)
+        detonating = true;
+        while (enabled)
         {
             GetComponent<KMBombModule>().HandleStrike();
             yield return new WaitForSeconds(2 / 3f);
         }
-        if (ModuleSolved) Log("Wait, how did you solve the module? You cheater...");
-        StrikeMode.SetActive(false);
     }
 
 #pragma warning disable 414

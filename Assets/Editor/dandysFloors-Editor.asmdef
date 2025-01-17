@@ -1,0 +1,10 @@
+{
+  "name": "dandysFloors-Editor",
+  "references": [
+    "dandysFloors"
+  ],
+  "includePlatforms": [
+    "Editor"
+  ],
+  "excludePlatforms": []
+}
