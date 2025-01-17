@@ -38,6 +38,7 @@ public class dandysFloors : MonoBehaviour
     string[] ItemRarityNames = new string[5] { "Common", "Uncommon", "Rare", "Very Rare", "Ultra Rare" };
     int[] EnemyRaritiesIchor = new int[5] { 5, 6, 8, 10, 25 };
     int[] ItemRaritiesIchor = new int[5] { 1, 2, 3, 5, 10 };
+    int[] EnemyChances = new int[5] { 2, 3, 5, 8, 10 };
     string base36 = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ";
 
     string initSeed = "";
@@ -124,12 +125,12 @@ public class dandysFloors : MonoBehaviour
                 Log("Inputted the correct number of ichor. Module solved!");
                 GetComponent<KMBombModule>().HandlePass();
                 ModuleSolved = true;
-                DandyIcon.gameObject.SetActive(true);
                 SubmissionMode.SetActive(false);
+                DandyIcon.gameObject.SetActive(true);
             }
             else
             {
-                Log("Inputted the incorrect number of ichor. Module solved!");
+                Log("Inputted the incorrect number of ichor. Strike!");
                 GetComponent<KMBombModule>().HandleStrike();
             }
         }
@@ -170,18 +171,19 @@ public class dandysFloors : MonoBehaviour
         GenerateEnemies();
         GenerateMachines();
         GenerateItems();
+        PickUpItems();
         int damage = CalculateDamage();
         if (damage == 0) Log("No damage was dealt by any of the rules!");
     }
 
     void GenerateEnemies()
     {
-        int enemyCount = 2 + (int)floor / 10;
+        int enemyCount = Math.Min(2 + (int)floor / 10, 6);
         int idx = 0;
         enemies = new bool[24];
         while (enemies.Count(e => e) != enemyCount)
         {
-            int upper = idx < 6 ? 2 : (idx < 13 ? 3 : (idx < 18 ? 5 : (idx != 23 ? 8 : 10)));
+            int upper = EnemyChances[GetEnemyRarity(idx)];
             enemies[idx] = Rnd.Range(0, upper) == 1;
             idx = (idx + 1) % 24;
         }
@@ -196,7 +198,7 @@ public class dandysFloors : MonoBehaviour
         {
             if (enemies[i])
             {
-                int enemyRarity = i < 6 ? 0 : (i < 13 ? 1 : (i < 18 ? 2 : (i != 23 ? 3 : 4)));
+                int enemyRarity = GetEnemyRarity(i);
                 ichor += EnemyRaritiesIchor[enemyRarity];
                 if (i == characterNum) ichor += 40;
                 Log($"Added {EnemyRaritiesIchor[enemyRarity]} ichor for a{(EnemyRarityNames[enemyRarity].First() == 'U' ? "n" : "")} {EnemyRarityNames[enemyRarity]} {ToonNames[i]}{(i == characterNum ? " and additional 40 ichor for matching the player's toon" : "")}. Player now has {ichor} ichor.");
@@ -215,19 +217,19 @@ public class dandysFloors : MonoBehaviour
         }
         else Log($"There are {machines} machines on this floor.");
         ichor += 5 * machines;
-        Log($"Added {5 * machines} ichor from the machines - player now has {ichor} ichor.");
+        Log($"Added {5 * machines} ichor from the machines. Player now has {ichor} ichor.");
     }
 
     void GenerateItems()
     {
         Log("Generating items:");
-        string itemsBits = nextBits(2);
-        int itemCount = Convert.ToInt32(itemsBits, 2) + 1;
+        string itemsBits = NextBits(2);
+        itemCount = Convert.ToInt32(itemsBits, 2) + 1;
         Log($"Requesting 2 bits: {itemsBits}. There {(itemCount > 1 ? "are" : "is")} {itemCount} item{AddS(itemCount)} on this floor:");
         items = new List<int>();
         for (int i = 0; i < itemCount; i++)
         {
-            string rarityBits = nextItemRarity();
+            string rarityBits = NextItemRarity();
             int rarity = 0;
             switch (rarityBits.Count(b => b == '1'))
             {
@@ -248,7 +250,7 @@ public class dandysFloors : MonoBehaviour
                     rarity = 4;
                     break;
             }
-            string itemBits = rarity == 4 ? nextBits(1) : nextBits(2);
+            string itemBits = rarity == 4 ? NextBits(1) : NextBits(2);
             int item = Convert.ToInt32(itemBits, 2);
             switch (rarity)
             {
@@ -274,6 +276,59 @@ public class dandysFloors : MonoBehaviour
             items.Add(item);
             Log($"Requesting {rarityBits.Length} bit{AddS(rarityBits)}: {rarityBits}. Item rarity - {ItemRarityNames[rarity]}. Requesting {itemBits.Length} more bit{AddS(itemBits)}: {itemBits}. Item #{i + 1} is {ItemNames[item]}.");
         }
+    }
+
+    void PickUpItems()
+    {
+        Log("Picking up all the items:");
+        for (int i = 0; i < itemCount; i++)
+        {
+            int pickUpIdx = 0;
+            int item = items[i];
+            if (inventory.Contains(-1))
+            {
+                pickUpIdx = inventory.IndexOf(x => x == -1);
+                inventory[pickUpIdx] = item;
+                Log($"The inventory is not fully filled - putting {ItemNames[item]} in slot #{pickUpIdx + 1}.");
+            }
+            else
+            {
+                if (GetItemRarity(item) == 5) Log($"Picking up a bandage/medkit - using the rightmost item that can be used:");
+                UseRightmostItem(GetItemRarity(item));
+            }
+        }
+        Log($"Inventory after picking up the items - {inventory.Select(x => x == -1 ? "Empty" : ItemNames[x]).Join(", ")}.");
+    }
+
+    void UseRightmostItem(int useRarity)
+    {
+        bool usedItem = false;
+        for (int i = 2; i > -1; i--)
+        {
+            int item = items[i];
+            int rarity = GetItemRarity(item);
+            if (rarity < useRarity)
+            {
+                usedItem = TryUseItem(item);
+                if (usedItem) break;
+            }
+        }
+        if (useRarity == 5 && !usedItem) UseItem(inventory.Last());
+    }
+
+    bool TryUseItem(int item)
+    {
+        if (CanUseItem(item))
+        {
+            UseItem(item);
+            return true;
+        }
+        else return false;
+    }
+
+    void UseItem(int item)
+    {
+
     }
 
     void Start()
@@ -375,7 +430,7 @@ public class dandysFloors : MonoBehaviour
         for (int i = 0; i < 6; i++)
         {
             string shiftSN = Bomb.GetSerialNumber().Substring(i, 6 - i) + Bomb.GetSerialNumber().Substring(0, i);
-            string convSN = base36toBinary(shiftSN);
+            string convSN = Base36ToBinary(shiftSN);
             Log($"{shiftSN} into binary: {convSN} ({convSN.Length} bit{AddS(convSN)}{(convSN.Length > 31 ? ", which is too long" : "")})");
             if (convSN.Length <= 31)
             {
@@ -397,8 +452,8 @@ public class dandysFloors : MonoBehaviour
             string curSN = Bomb.GetSerialNumber();
             for (int i = 1; i < 36; i++)
             {
-                curSN = base36Caesar(curSN);
-                string newBits = base36toBinary(curSN);
+                curSN = Base36Caesar(curSN);
+                string newBits = Base36ToBinary(curSN);
                 if (newBits.Length < initSeed.Length) newBits = new string('0', initSeed.Length - newBits.Length) + newBits;
                 string truncatedBits = newBits.Substring(newBits.Length - initSeed.Length, initSeed.Length);
                 string xor = Convert.ToString(Convert.ToInt32(initSeed, 2) ^ Convert.ToInt32(truncatedBits, 2), 2);
@@ -409,7 +464,7 @@ public class dandysFloors : MonoBehaviour
             Log($"Full seed: {fullSeed}.");
             usingSeed = fullSeed;
 
-            string charBits = nextBits(23);
+            string charBits = NextBits(23);
             characterNum = Convert.ToInt32(charBits, 2) % 23;
             hp = characterNum >= 18 ? 2 : 3;
             Log($"Requesting 23 bits: {charBits}. You are playing as Toon number {Convert.ToInt32(charBits, 2)} % 23 + 1 - {ToonNames[characterNum]}. You start with {hp} HP.");
@@ -422,7 +477,7 @@ public class dandysFloors : MonoBehaviour
         int res = 0;
         if (enemies[16]) //Goob
         { 
-            if (!isPrime(floor))
+            if (!isPrime(floor) && floor != 1)
             {
                 Log("Goob: Floor number is composite - Goob deals 1 damage.");
                 res++;
@@ -506,7 +561,7 @@ public class dandysFloors : MonoBehaviour
             //useAllID(12);
             if (characterNum == 7 || characterNum == 4 || (characterNum == 9 && floor % 2 == 0))
             {
-                Log("Flutter: Plyer is Connie/Shrimpo or Razzle & Dazzle on an even floor - Flutter deals 1 damage.");
+                Log("Flutter: Player is Connie/Shrimpo or Razzle & Dazzle on an even floor - Flutter deals 1 damage.");
                 res++;
             }
             Log($"Flutter: All Pops and Bottles o' Pop are used immediately.");
@@ -542,7 +597,7 @@ public class dandysFloors : MonoBehaviour
                 res++;
             }
         }
-        if ((machines > 7) && (machines % 4 == 0)) //Astro
+        if (enemies[18] && (machines > 7) && (machines % 4 == 0)) //Astro
         {
             Log("Astro: Floor number is divisible by 4 and greater than 7 - Astro deals 1 damage.");
             res++;
@@ -566,7 +621,7 @@ public class dandysFloors : MonoBehaviour
         }
         if (enemies[21] && characterNum != 2 && proteinBarsUsed % 2 == 0) //Sprout
         {
-            Log("Sprout: Player is not Sprout and the number of Protein Bar throughout the module is even - Sprout deals 1 damage.");
+            Log("Sprout: Player is not Cosmo and the number of Protein Bars throughout the module is even - Sprout deals 1 damage.");
             res++;
         }
         if (enemies[22]) //Vee
@@ -587,22 +642,54 @@ public class dandysFloors : MonoBehaviour
                 inventory[inventory.IndexOf(i => i != -1)] = -1;
             }
         }
-        if (enemies[23] && !(enemies[18] || enemies[19] || enemies[20] || enemies[21] || enemies[22]) && dandyPoints() % 5 == 0) //Dandy
+        if (enemies[23] && !(enemies[18] || enemies[19] || enemies[20] || enemies[21] || enemies[22]) && DandyPoints() % 5 == 0) //Dandy
         {
-            Log($"Dandy: There are no main enemies and the score obtained from the rules ({dandyPoints()}) is divisible by 5 - Dandy kills the player!");
+            Log($"Dandy: There are no main enemies and the score obtained from the rules ({DandyPoints()}) is divisible by 5 - Dandy kills the player!");
             return 9999; 
         }
         return res;
     }
 
-    int dandyPoints()
+    int DandyPoints()
     {
         int points = 0;
-        for (int i = 0; i < usedRarities.Count; i++) points += usedRarities[i] * i % 2 == 0 ? -1 : 1;
+        for (int i = 0; i < usedRarities.Count; i++) points += usedRarities[i] * (i % 2 == 0 ? -1 : 1);
         return points;
     }
 
-    string base36toBinary(string n)
+    bool CanUseItem(int i)
+    {
+        switch (i)
+        {
+            case 0:
+            case 6:
+            case 7:
+            case 9:
+            case 10:
+                return true;
+            case 1:
+            case 2:
+            case 11:
+            case 13:
+                return enemies[6] || enemies[7] || enemies[8] || enemies[9] || enemies[10] || enemies[11] || enemies[12];
+            case 3:
+                return enemies[11] || enemies[12] || enemies[13] || enemies[14] || enemies[18] || enemies[19] || enemies[20] || enemies[21];
+            case 4:
+                return new bool[8] { enemies[11], enemies[12], enemies[13], enemies[14], enemies[18], enemies[19], enemies[20], enemies[21] }.Count(x => x) == 2;
+            case 5:
+                return enemies[18] || enemies[19] || enemies[20] || enemies[21] || enemies[22];
+            case 14:
+                return enemies[10];
+            case 15:
+                return enemies.Count(x => x) > 4;
+            case 8:
+            case 12:
+            default:
+                return false;
+        }
+    }
+
+    string Base36ToBinary(string n)
     {
         int dec = 0;
         for (int i = 0; i < n.Length; i++)
@@ -612,7 +699,7 @@ public class dandysFloors : MonoBehaviour
         return Convert.ToString(dec, 2);
     }
 
-    string base36Caesar(string n)
+    string Base36Caesar(string n)
     {
         string caesar = "";
         foreach (char c in n)
@@ -622,7 +709,7 @@ public class dandysFloors : MonoBehaviour
         return caesar;
     }
 
-    string nextBits(int n)
+    string NextBits(int n)
     {
         if (usingSeed.Length < n) usingSeed += fullSeed;
         string next = usingSeed.Substring(0, n);
@@ -630,15 +717,26 @@ public class dandysFloors : MonoBehaviour
         return next;
     }
 
-    string nextItemRarity()
+    string NextItemRarity()
     {
         string next = "";
         for (int i = 0; i < 5; i++)
         {
-            next += nextBits(1);
+            next += NextBits(1);
             if (next.Last() == '0') break;
         }
         return next;
+    }
+
+    int GetEnemyRarity(int e)
+    {
+        return e < 6 ? 0 : (e < 13 ? 1 : (e < 18 ? 2 : (e != 23 ? 3 : 4)));
+    }
+
+    int GetItemRarity(int i)
+    {
+        if (i == 8 || i == 12) return 5;
+        return i < 3 ? 0 : (i < 7 ? 1 : (i < 11 ? 2 : (i < 14 ? 3 : 4)));
     }
 
     string AddS(string n)
@@ -653,12 +751,14 @@ public class dandysFloors : MonoBehaviour
 
     bool isPrime(int n)
     {
-        if (n == 1) return false;
         bool prime = true;
-        for (int i = 2; i < n / 2; i++)
+        for (int i = 2; i < (int)Math.Sqrt(n); i++)
         {
-            prime = false;
-            break;
+            if (n % i == 0)
+            {
+                prime = false;
+                break;
+            }
         }
         return prime;
     }
