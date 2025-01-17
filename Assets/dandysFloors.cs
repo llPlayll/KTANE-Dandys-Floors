@@ -147,9 +147,11 @@ public class dandysFloors : MonoBehaviour
 
     void EnterStrikeMode()
     {
+        inSubmission = true;
         StageMode.SetActive(false);
         StrikeMode.SetActive(true);
         GetComponent<KMSelectable>().UpdateChildrenProperly();
+        StartCoroutine("StrikeStrikeStrike");
     }
 
     void EnterSubmissionMode()
@@ -305,7 +307,7 @@ public class dandysFloors : MonoBehaviour
         bool usedItem = false;
         for (int i = 2; i > -1; i--)
         {
-            int item = items[i];
+            int item = inventory[i];
             int rarity = GetItemRarity(item);
             if (rarity < useRarity)
             {
@@ -314,6 +316,7 @@ public class dandysFloors : MonoBehaviour
             }
         }
         if (useRarity == 5 && !usedItem) UseItem(inventory.Last());
+        done = true;
     }
 
     bool TryUseItem(int item)
@@ -401,6 +404,7 @@ public class dandysFloors : MonoBehaviour
         {
             int curSolves = Bomb.GetSolvedModuleNames().Where(a => !ignoredModules.Contains(a)).ToList().Count;
             if (curSolves == Bomb.GetModuleNames().Where(a => !ignoredModules.Contains(a)).ToList().Count) EnterSubmissionMode();
+            if (curSolves > lastSolves && done) EnterStrikeMode();
             else
             {
                 if (cooldown > 0)
@@ -778,7 +782,17 @@ public class dandysFloors : MonoBehaviour
         Debug.Log($"[Dandy's Floors #{ModuleId}] {arg}");
     }
 
-    
+    IEnumerator StrikeStrikeStrike()
+    {
+        Log("You were supposed to press the submit button, but you didn't! Detonating the bomb...");
+        while (!ModuleSolved)
+        {
+            GetComponent<KMBombModule>().HandleStrike();
+            yield return new WaitForSeconds(2 / 3f);
+        }
+        if (ModuleSolved) Log("Wait, how did you solve the module? You cheater...");
+        StrikeMode.SetActive(false);
+    }
 
 #pragma warning disable 414
     private readonly string TwitchHelpMessage = @"Use !{0} to do something.";
