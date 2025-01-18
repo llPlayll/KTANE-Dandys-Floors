@@ -436,7 +436,7 @@ public class dandysFloors : MonoBehaviour
             Log($"{shiftSN} into binary: {convSN} ({convSN.Length} bit{AddS(convSN)}{(convSN.Length > 31 ? ", which is too long" : "")})");
             if (convSN.Length <= 31)
             {
-                initSeed = convSN;
+                initSeed = convSN.Substring(1);
                 fullSeed = initSeed;
                 break;
             }
