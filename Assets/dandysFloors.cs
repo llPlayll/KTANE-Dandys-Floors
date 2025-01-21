@@ -55,6 +55,7 @@ public class dandysFloors : MonoBehaviour
     int hp;
     int ichor = 0;
     int[] inventory = new int[3] { -1, -1, -1 };
+    int[] itemUsages = new int[3] { 0, 0, 0 };
     List<int> usedRarities = new List<int>();
     int proteinBarsUsed;
     bool detonating;
@@ -289,47 +290,39 @@ public class dandysFloors : MonoBehaviour
             {
                 pickUpIdx = inventory.IndexOf(x => x == -1);
                 inventory[pickUpIdx] = item;
+                itemUsages[pickUpIdx] = item == 13 ? 5 : 1;
                 Log($"The inventory is not fully filled - putting {ItemNames[item]} in slot #{pickUpIdx + 1}.");
             }
-            else
-            {
-                if (GetItemRarity(item) == 5) Log($"Picking up a bandage/medkit - using the rightmost item that can be used:");
-                UseRightmostItem(GetItemRarity(item));
-            }
+            else UseThenPickup(item);
         }
         Log($"Inventory after picking up the items - {inventory.Select(x => x == -1 ? "Empty" : ItemNames[x]).Join(", ")}.");
     }
 
-    void UseRightmostItem(int useRarity)
+    void UseThenPickup(int item)
     {
-        bool usedItem = false;
+        int itemRarity = GetItemRarity(item);
+        string usedItem = "";
         for (int i = 2; i > -1; i--)
         {
-            int item = inventory[i];
-            int rarity = GetItemRarity(item);
-            if (rarity < useRarity)
+            int rarity = GetItemRarity(inventory[i]);
+            if (rarity < itemRarity)
             {
-                usedItem = TryUseItem(item);
-                if (usedItem) break;
+                usedItem = ItemNames[inventory[i]];
+                FullyUseItem(i);
+                inventory[i] = item;
+                itemUsages[i] = item == 13 ? 5 : 1;
+                Log($"Using {usedItem} from slot #{i + 1} to pick up {ItemNames[item]}. Player now has {ichor} ichor.");
+                break;
             }
         }
-        if (useRarity == 5 && !usedItem) UseItem(inventory.Last());
-        done = true;
+        if (usedItem == "") Log($"Skipping over {ItemNames[item]} as its rarity is not higher than any of the inventory's items' rarities.");
     }
 
-    bool TryUseItem(int item)
+    void FullyUseItem(int slot)
     {
-        if (CanUseItem(item))
-        {
-            UseItem(item);
-            return true;
-        }
-        else return false;
-    }
-
-    void UseItem(int item)
-    {
-
+        ichor += ItemRaritiesIchor[GetItemRarity(inventory[slot])];
+        inventory[slot] = -1;
+        itemUsages[slot] = 0;
     }
 
     void Start()
@@ -753,6 +746,7 @@ public class dandysFloors : MonoBehaviour
 
     bool isPrime(int n)
     {
+        if (n == 1) return false;
         bool prime = true;
         for (int i = 2; i < (int)Math.Sqrt(n); i++)
         {
