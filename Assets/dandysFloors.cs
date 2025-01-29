@@ -641,6 +641,7 @@ public class dandysFloors : MonoBehaviour
             Log("Looey: Player has an Air Horn in their inventory - Looey deals 1 damage. The Air Horn is used immediately.");
             TakeDamage(1);
             takenDamage = true;
+            UseItemOnce(Array.LastIndexOf(inventory, 10));
         }
         if (enemies[floor][4] && machines[floor] > 8 && characterNum != 8) //Shrimpo
         {
@@ -694,14 +695,16 @@ public class dandysFloors : MonoBehaviour
         }
         if (enemies[floor][13]) //Flutter
         {
-            //useAllID(3);
-            //useAllID(12);
             if (characterNum == 7 || characterNum == 4 || (characterNum == 9 && (floor + 1) % 2 == 0))
             {
                 Log("Flutter: Player is Connie/Shrimpo or Razzle & Dazzle on an even floor - Flutter deals 1 damage.");
                 TakeDamage(1);
             }
             Log($"Flutter: All Pops and Bottles o' Pop are used immediately.");
+            for (int i = 0; i < 3; i++)
+            {
+                if (inventory[i] == 2 || inventory[i] == 11) UseItemOnce(i);
+            }
         }
     
         if (enemies[floor][15]) //Glisten
@@ -907,22 +910,22 @@ public class dandysFloors : MonoBehaviour
     {
         switch (i)
         {
-            case 0: return true;
-            case 1: return (enemies[floor][6] || enemies[floor][7] || enemies[floor][8] || enemies[floor][9] || enemies[floor][10] || enemies[floor][11] || enemies[floor][12]) && !floorItemsUsed.Contains(1);
-            case 2: return (enemies[floor][6] || enemies[floor][7] || enemies[floor][8] || enemies[floor][9] || enemies[floor][10] || enemies[floor][11] || enemies[floor][12]) && !floorItemsUsed.Contains(2);
-            case 3: return (enemies[floor][11] || enemies[floor][12] || enemies[floor][13] || enemies[floor][14] || enemies[floor][18] || enemies[floor][19] || enemies[floor][20] || enemies[floor][21]) && !floorItemsUsed.Contains(3);
-            case 4: return new bool[8] { enemies[floor][11], enemies[floor][12], enemies[floor][13], enemies[floor][14], enemies[floor][18], enemies[floor][19], enemies[floor][20], enemies[floor][21] }.Count(e => e) >= 2 && !floorItemsUsed.Contains(4);
-            case 5: return (enemies[floor][18] || enemies[floor][19] || enemies[floor][20] || enemies[floor][21] || enemies[floor][22]) && !floorItemsUsed.Contains(5);
-            case 6: return true;
-            case 7: return true;
-            case 8: return false;
-            case 9: return !floorItemsUsed.Contains(9);
-            case 10: return true;
-            case 11: return (enemies[floor][6] || enemies[floor][7] || enemies[floor][8] || enemies[floor][9] || enemies[floor][10] || enemies[floor][11] || enemies[floor][12]) && !floorItemsUsed.Contains(11);
-            case 12: return false;
-            case 13: return (enemies[floor][6] || enemies[floor][7] || enemies[floor][8] || enemies[floor][9] || enemies[floor][10] || enemies[floor][11] || enemies[floor][12]) && !floorItemsUsed.Contains(13);
-            case 14: return enemies[floor][10] && !floorItemsUsed.Contains(14);
-            case 15: return enemies[floor].Count(e => e) > 4 && !floorItemsUsed.Contains(15);
+            case 0: return true; //Gumballs
+            case 1: return (enemies[floor][6] || enemies[floor][7] || enemies[floor][8] || enemies[floor][9] || enemies[floor][10] || enemies[floor][11] || enemies[floor][12]) && !floorItemsUsed.Contains(1); //Chocolate
+            case 2: return (enemies[floor][6] || enemies[floor][7] || enemies[floor][8] || enemies[floor][9] || enemies[floor][10] || enemies[floor][11] || enemies[floor][12]) && !floorItemsUsed.Contains(2); //Pop
+            case 3: return (enemies[floor][11] || enemies[floor][12] || enemies[floor][13] || enemies[floor][14] || enemies[floor][18] || enemies[floor][19] || enemies[floor][20] || enemies[floor][21]) && !floorItemsUsed.Contains(3); //Speed candy
+            case 4: return new bool[8] { enemies[floor][11], enemies[floor][12], enemies[floor][13], enemies[floor][14], enemies[floor][18], enemies[floor][19], enemies[floor][20], enemies[floor][21] }.Count(e => e) >= 2 && !floorItemsUsed.Contains(4); //Protein bar
+            case 5: return (enemies[floor][18] || enemies[floor][19] || enemies[floor][20] || enemies[floor][21] || enemies[floor][22]) && !floorItemsUsed.Contains(5); //Stealth candy
+            case 6: return true; //Skill Check candy
+            case 7: return true; //Jumper cable
+            case 8: return false; //Bandage
+            case 9: return !floorItemsUsed.Contains(9); //Enigma candy
+            case 10: return true; //Air horn
+            case 11: return (enemies[floor][6] || enemies[floor][7] || enemies[floor][8] || enemies[floor][9] || enemies[floor][10] || enemies[floor][11] || enemies[floor][12]) && !floorItemsUsed.Contains(11); //Bottle o' Pop
+            case 12: return false; //Health kit
+            case 13: return (enemies[floor][6] || enemies[floor][7] || enemies[floor][8] || enemies[floor][9] || enemies[floor][10] || enemies[floor][11] || enemies[floor][12]) && !floorItemsUsed.Contains(13); //Bob o' Chocolates
+            case 14: return enemies[floor][10] && !floorItemsUsed.Contains(14); //Eject button
+            case 15: return enemies[floor].Count(e => e) > 4 && !floorItemsUsed.Contains(15); //Smoke bomb
             default: return false;
         }
     }
