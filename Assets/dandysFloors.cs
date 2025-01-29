@@ -30,6 +30,7 @@ public class dandysFloors : MonoBehaviour
     [SerializeField] List<Material> ColorMaterials;
     [SerializeField] MeshRenderer ModuleRenderer;
     [SerializeField] KMSelectable DisplaySelectable;
+    [SerializeField] TextMesh StrikeText;
     [SerializeField] AudioClip NextStageClip;
     [SerializeField] AudioClip DoorSlamClip;
     [SerializeField] AudioClip BlackoutClip;
@@ -59,7 +60,7 @@ public class dandysFloors : MonoBehaviour
     bool inStages, inSubmission;
     bool done, detonating;
     string input = "";
-    bool struckInSubmission;
+    bool canStartRecovery;
     bool inRecoveryMode;
 
     int characterNum;
@@ -136,8 +137,11 @@ public class dandysFloors : MonoBehaviour
             {
                 Log("Inputted the incorrect number of ichor. Strike!");
                 GetComponent<KMBombModule>().HandleStrike();
-                struckInSubmission = true;
-                StartCoroutine("FlashDisplay");
+                if (Bomb.GetModuleNames().Where(a => !ignoredModules.Contains(a)).ToList().Count > 1)
+                {
+                    canStartRecovery = true;
+                    StartCoroutine("FlashDisplay");
+                }
                 input = "";
             }
         }
@@ -164,12 +168,12 @@ public class dandysFloors : MonoBehaviour
 
     void DisplayPress()
     {
-        if (!struckInSubmission) return;
+        if (!canStartRecovery) return;
         DisplaySelectable.AddInteractionPunch();
         Audio.PlayGameSoundAtTransform(KMSoundOverride.SoundEffect.ButtonPress, DisplaySelectable.transform);
         StageMode.SetActive(true);
         foreach (KMSelectable enemy in EnemySelectables) enemy.gameObject.transform.Find("HL").gameObject.SetActive(true);
-        struckInSubmission = false;
+        canStartRecovery = false;
         inRecoveryMode = true;
         curRecoveryFloor = 0;
         StartCoroutine("DisplayStage", curRecoveryFloor);
@@ -187,6 +191,7 @@ public class dandysFloors : MonoBehaviour
     void EnterStrikeMode()
     {
         inSubmission = true;
+        DandyIcon.gameObject.SetActive(false);
         StageMode.SetActive(false);
         StrikeMode.SetActive(true);
         StartCoroutine("StrikeStrikeStrike");
@@ -498,7 +503,15 @@ public class dandysFloors : MonoBehaviour
                 "Whiteout"
             });
 
-        CalculateSeed();
+        if (Bomb.GetModuleNames().Where(a => !ignoredModules.Contains(a)).ToList().Count < 2)
+        {
+            Log("Not enough modules to generate even a single stage - submit 0 ichor!");
+            StrikeText.text = "NO FLOORS\nGENERATED!";
+            StrikeText.fontSize = 180;
+            canStart = false;
+            done = true;
+        }
+        else CalculateSeed();
     }
 
     void Update()
@@ -506,8 +519,8 @@ public class dandysFloors : MonoBehaviour
         if (canStart && !inSubmission)
         {
             int curSolves = Bomb.GetSolvedModuleNames().Where(a => !ignoredModules.Contains(a)).ToList().Count;
-            if (curSolves == Bomb.GetModuleNames().Where(a => !ignoredModules.Contains(a)).ToList().Count) EnterSubmissionMode();
             if (curSolves > lastSolves && done) EnterStrikeMode();
+            else if (curSolves == Bomb.GetModuleNames().Where(a => !ignoredModules.Contains(a)).ToList().Count && curSolves > 0) EnterSubmissionMode();
             else
             {
                 if (cooldown > 0)
@@ -549,6 +562,9 @@ public class dandysFloors : MonoBehaviour
         if (initSeed == "")
         {
             Log("Could not generate the run's seed - submit 0 ichor!");
+            StrikeText.text = "SEED\nNOT\nFOUND!";
+            StrikeText.fontSize = 250;
+            canStart = false;
             done = true;
         }
         else
@@ -987,7 +1003,7 @@ public class dandysFloors : MonoBehaviour
 
     IEnumerator FlashDisplay()
     {
-        while (struckInSubmission)
+        while (canStartRecovery)
         {
             DisplaySelectable.GetComponent<MeshRenderer>().material = ColorMaterials[1];
             yield return new WaitForSeconds(0.5f);
@@ -1055,7 +1071,7 @@ public class dandysFloors : MonoBehaviour
                     }
                     break;
                 case "recovery":
-                    if (!inStages || !struckInSubmission) yield return "sendtochaterror Unable to enter recovery mode now!";
+                    if (!inStages || !canStartRecovery) yield return "sendtochaterror Unable to enter recovery mode now!";
                     else
                     {
                         yield return null;
@@ -1080,6 +1096,8 @@ public class dandysFloors : MonoBehaviour
     IEnumerator TwitchHandleForcedSolve()
     {
         StopCoroutine("StrikeStrikeStrike");
+        StrikeMode.SetActive(false);
+        SubmissionMode.SetActive(true);
         if (!inSubmission)
         {
             done = true;

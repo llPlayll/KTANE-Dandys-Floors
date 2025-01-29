@@ -12389,6 +12389,7 @@ MonoBehaviour:
   - {fileID: 2100000, guid: b65872084aff8114da3cead5ecdbbaf3, type: 2}
   ModuleRenderer: {fileID: 23391913642316400}
   DisplaySelectable: {fileID: 114412975767358988}
+  StrikeText: {fileID: 102249904597415406}
   NextStageClip: {fileID: 8300000, guid: 24bb4d49de0c2194cb672348fe35ce90, type: 3}
   DoorSlamClip: {fileID: 8300000, guid: ac495d10c00dc5b488c43adc792ec2ea, type: 3}
   BlackoutClip: {fileID: 8300000, guid: 42bc4d30e058b1441b78ea2f26f2c6f1, type: 3}
@@ -13028,7 +13029,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   ShaderNames:
-  - Unlit/Color
+  - KT/Outline
 --- !u!114 &114553850440254174
 MonoBehaviour:
   m_ObjectHideFlags: 1
