@@ -27,8 +27,13 @@ public class dandysFloors : MonoBehaviour
     [SerializeField] List<KMSelectable> SubmissionKeypad;
     [SerializeField] TextMesh InputText;
     [SerializeField] List<Material> ModuleBGMaterials;
-    [SerializeField] List<Material> ButtonMaterials;
+    [SerializeField] List<Material> ColorMaterials;
     [SerializeField] MeshRenderer ModuleRenderer;
+    [SerializeField] KMSelectable DisplaySelectable;
+    [SerializeField] AudioClip NextStageClip;
+    [SerializeField] AudioClip DoorSlamClip;
+    [SerializeField] AudioClip BlackoutClip;
+    [SerializeField] AudioClip SolveClip;
 
     static int ModuleIdCounter = 1;
     int ModuleId;
@@ -52,8 +57,10 @@ public class dandysFloors : MonoBehaviour
     bool canStart;
     int lastSolves, curSolves = 0;
     bool inStages, inSubmission;
+    bool done, detonating;
+    string input = "";
+    bool struckInSubmission;
 
-    bool done;
     int characterNum;
     int hp;
     int ichor = 0;
@@ -61,16 +68,15 @@ public class dandysFloors : MonoBehaviour
     int[] itemUsages = new int[3] { 0, 0, 0 };
     List<int> usedRarities = new List<int>();
     int proteinBarsUsed;
-    bool detonating;
-
+    int prevBlackout = 0;
+    
     int floor = -1;
+    int curRecoveryFloor = -1;
     List<int> machines = new List<int>();
     List<bool[]> enemies = new List<bool[]>();
     List<bool> blackouts = new List<bool>();
-    int itemCount;
     List<int> items;
-    int prevBlackout = 0;
-    string input = "";
+    int itemCount;
 
     void Awake()
     {
@@ -78,19 +84,13 @@ public class dandysFloors : MonoBehaviour
         GetComponent<KMBombModule>().OnActivate += delegate () { canStart = true; };
         DandyIcon.OnInteract += delegate () { DandyIconPress(); return false; };
         foreach (KMSelectable enemy in EnemySelectables) {
-            enemy.gameObject.transform.Find("HL").gameObject.SetActive(false);
+            enemy.OnInteract += delegate () { EnemyPress(enemy); return false; };
         }
         StageSubmitButton.OnInteract += delegate () { SubmitPress(); return false; };
         foreach (KMSelectable key in SubmissionKeypad) {
             key.OnInteract += delegate () { KeyPress(key); return false; };
         }
-        /*
-        foreach (KMSelectable object in keypad) {
-            object.OnInteract += delegate () { keypadPress(object); return false; };
-            }
-        */
-
-        //button.OnInteract += delegate () { buttonPress(); return false; };
+        DisplaySelectable.OnInteract += delegate () { DisplayPress(); return false; };
     }
 
     void DandyIconPress()
@@ -120,6 +120,8 @@ public class dandysFloors : MonoBehaviour
 
     void KeyPress(KMSelectable key)
     {
+        StopCoroutine("FlashDisplay");
+        DisplaySelectable.GetComponent<MeshRenderer>().material = ColorMaterials[1];
         key.AddInteractionPunch();
         Audio.PlayGameSoundAtTransform(KMSoundOverride.SoundEffect.ButtonPress, key.transform);
         int keyIdx = SubmissionKeypad.IndexOf(key);
@@ -127,21 +129,47 @@ public class dandysFloors : MonoBehaviour
         else if (keyIdx == 10 && input.Length > 0) input = input.Substring(0, input.Length - 1);
         else if (keyIdx == 11)
         {
-            if (input == ichor.ToString())
-            {
-                Log("Inputted the correct number of ichor. Module solved!");
-                GetComponent<KMBombModule>().HandlePass();
-                ModuleSolved = true;
-                SubmissionMode.SetActive(false);
-                DandyIcon.gameObject.SetActive(true);
-            }
+            if (input == ichor.ToString()) StartCoroutine("Solve");
             else
             {
                 Log("Inputted the incorrect number of ichor. Strike!");
                 GetComponent<KMBombModule>().HandleStrike();
+                struckInSubmission = true;
+                StartCoroutine("FlashDisplay");
+                input = "";
             }
         }
         InputText.text = input;
+    }
+
+    void EnemyPress(KMSelectable key)
+    {
+        if (!inSubmission) return;
+        key.AddInteractionPunch();
+        Audio.PlayGameSoundAtTransform(KMSoundOverride.SoundEffect.ButtonPress, key.transform);
+        curRecoveryFloor++;
+        if (curRecoveryFloor > floor)
+        {
+            Audio.PlaySoundAtTransform(DoorSlamClip.name, transform);
+            StageMode.SetActive(false);
+            SubmissionMode.SetActive(true);
+            ModuleRenderer.material = ModuleBGMaterials[0];
+            curRecoveryFloor = -1;
+        }
+        else StartCoroutine("DisplayStage", curRecoveryFloor);
+    }
+
+    void DisplayPress()
+    {
+        if (!struckInSubmission) return;
+        DisplaySelectable.AddInteractionPunch();
+        Audio.PlayGameSoundAtTransform(KMSoundOverride.SoundEffect.ButtonPress, DisplaySelectable.transform);
+        StageMode.SetActive(true);
+        foreach (KMSelectable enemy in EnemySelectables) enemy.gameObject.transform.Find("HL").gameObject.SetActive(true);
+        struckInSubmission = false;
+        curRecoveryFloor = 0;
+        StartCoroutine("DisplayStage", curRecoveryFloor);
+        SubmissionMode.SetActive(false);
     }
 
     void EnterStageMode()
@@ -149,6 +177,7 @@ public class dandysFloors : MonoBehaviour
         inStages = true;
         DandyIcon.gameObject.SetActive(false);
         StageMode.SetActive(true);
+        foreach (KMSelectable enemy in EnemySelectables) enemy.gameObject.transform.Find("HL").gameObject.SetActive(false);
     }
 
     void EnterStrikeMode()
@@ -161,16 +190,23 @@ public class dandysFloors : MonoBehaviour
 
     void EnterSubmissionMode()
     {
+        Audio.PlaySoundAtTransform(DoorSlamClip.name, transform);
+        ModuleRenderer.material = ModuleBGMaterials[0];
         inSubmission = true;
         DandyIcon.gameObject.SetActive(false);
         StageMode.SetActive(false);
+        StageSubmitButton.gameObject.SetActive(false);
         SubmissionMode.SetActive(true);
         Log($"Entering submission mode: correct answer - {ichor} ichor.");
     }
 
     void GenerateStage()
     {
-        if (blackouts[floor]) prevBlackout = floor;
+        if (inSubmission) return;
+        if (floor > 0) 
+        {
+            if (blackouts[floor]) prevBlackout = floor;
+        }
         floor++;
         Log($"Floor #{floor + 1}:");
 
@@ -484,7 +520,7 @@ public class dandysFloors : MonoBehaviour
         int res = 0;
         if (enemies[floor][16]) //Goob
         { 
-            if (!isPrime(floor) && floor != 1)
+            if (!isPrime(floor + 1) && floor != 1)
             {
                 Log("Goob: Floor number is composite - Goob deals 1 damage.");
                 res++;
@@ -500,7 +536,7 @@ public class dandysFloors : MonoBehaviour
                 return 0;
             }
         }
-        if (enemies[floor][0] && isPrime(floor)) //Boxten
+        if (enemies[floor][0] && isPrime(floor + 1)) //Boxten
         {
             Log("Boxten: Floor number is prime - Boxten deals 1 damage.");
             res++; 
@@ -510,7 +546,7 @@ public class dandysFloors : MonoBehaviour
             Log("Cosmo: Dandy/Sprout is present - Cosmo deals 1 damage.");
             res++;
         }
-        if (enemies[floor][2] && (isFibonacci(floor)) && (floor > 7))  //Poppy
+        if (enemies[floor][2] && (isFibonacci(floor + 1)) && (floor > 7))  //Poppy
         {
             Log("Poppy: Floor number is present in the Fibonacci sequence and greater than 7 - Poppy deals 1 damage.");
             res++;
@@ -566,7 +602,7 @@ public class dandysFloors : MonoBehaviour
         {
             //useAllID(3);
             //useAllID(12);
-            if (characterNum == 7 || characterNum == 4 || (characterNum == 9 && floor % 2 == 0))
+            if (characterNum == 7 || characterNum == 4 || (characterNum == 9 && (floor + 1) % 2 == 0))
             {
                 Log("Flutter: Player is Connie/Shrimpo or Razzle & Dazzle on an even floor - Flutter deals 1 damage.");
                 res++;
@@ -592,7 +628,7 @@ public class dandysFloors : MonoBehaviour
         if (enemies[floor][17]) //Scraps
         {
             bool scrapsDamage = false;
-            if (floor % 3 != 0)
+            if ((floor + 1) % 3 != 0)
             {
                 Log("Scraps: Floor number is not divisible by 3 - Scraps deals 1 damage.");
                 res++;
@@ -606,10 +642,10 @@ public class dandysFloors : MonoBehaviour
         }
         if (enemies[floor][18] && (machines[floor] > 7) && (machines[floor] % 4 == 0)) //Astro
         {
-            Log("Astro: Floor number is divisible by 4 and greater than 7 - Astro deals 1 damage.");
+            Log("Astro: Number of machines is divisible by 4 and greater than 7 - Astro deals 1 damage.");
             res++;
         }
-        if (enemies[floor][19] && (floor % 11 != 0 ^ enemies[floor][23])) //Pebble
+        if (enemies[floor][19] && ((floor + 1) % 11 != 0 ^ enemies[floor][23])) //Pebble
         {
             if (enemies[floor][23])
             {
@@ -636,6 +672,11 @@ public class dandysFloors : MonoBehaviour
             Log("Vee: Vee deals 1 damage.");
             res++;
         }
+        if (enemies[floor][23] && !(enemies[floor][18] || enemies[floor][19] || enemies[floor][20] || enemies[floor][21] || enemies[floor][22]) && DandyPoints() % 5 == 0) //Dandy
+        {
+            Log($"Dandy: There are no main enemies and the score obtained from the rules ({DandyPoints()}) is divisible by 5 - Dandy kills the player!");
+            return 9999; 
+        }
         if (enemies[floor][16]) //Gigi
         {
             if (inventory.Count(i => i == -1) == 3)
@@ -648,11 +689,6 @@ public class dandysFloors : MonoBehaviour
                 Log($"Gigi: Player's inventory is not empty - Gigi steals the item in slot {inventory.IndexOf(i => i != -1) + 1}.");
                 inventory[inventory.IndexOf(i => i != -1)] = -1;
             }
-        }
-        if (enemies[floor][23] && !(enemies[floor][18] || enemies[floor][19] || enemies[floor][20] || enemies[floor][21] || enemies[floor][22]) && DandyPoints() % 5 == 0) //Dandy
-        {
-            Log($"Dandy: There are no main enemies and the score obtained from the rules ({DandyPoints()}) is divisible by 5 - Dandy kills the player!");
-            return 9999; 
         }
         return res;
     }
@@ -726,9 +762,10 @@ public class dandysFloors : MonoBehaviour
 
     bool isPrime(int n)
     {
+        Log(n.ToString());
         if (n == 1) return false;
         bool prime = true;
-        for (int i = 2; i < (int)Math.Sqrt(n); i++)
+        for (int i = 2; i < (int)Math.Sqrt(n) + 1; i++)
         {
             if (n % i == 0)
             {
@@ -754,36 +791,50 @@ public class dandysFloors : MonoBehaviour
         Debug.Log($"[Dandy's Floors #{ModuleId}] {arg}");
     }
 
-    IEnumerator DisplayStage(int floor)
+    IEnumerator DisplayStage(int displayFloor)
     {
         bool doIntro = !inSubmission;
         ModuleRenderer.material = ModuleBGMaterials[0];
         for (int i = 0; i < 24; i++)
         {
-            EnemyRenderers[i].transform.parent.GetComponent<MeshRenderer>().material = ButtonMaterials[0];
+            EnemyRenderers[i].transform.parent.GetComponent<MeshRenderer>().material = ColorMaterials[1];
             EnemyRenderers[i].material = EnemySilhouetteMaterials[i];
         }
         if (doIntro)
         {
+            Audio.PlaySoundAtTransform(NextStageClip.name, transform);
             for (int i = 0; i < 3; i++)
             {
                 FloorText.text = new string('.', i + 1);
                 MachinesText.text = new string('.', i + 1);
-                yield return new WaitForSeconds(1 / 3f);
+                yield return new WaitForSeconds(2.1f / 3f);
             }
         }
 
-        for (int i = 0; i < 24; i++) EnemyRenderers[i].material = enemies[floor][i] ? EnemyMaterials[i] : EnemySilhouetteMaterials[i];
-        FloorText.text = (floor + 1).ToString();
-        if (enemies[floor][18]) MachinesText.text = ((int)(machines[floor] * 1.25 + Bomb.GetBatteryCount())).ToString();
-        else MachinesText.text = machines[floor].ToString();
+        for (int i = 0; i < 24; i++) EnemyRenderers[i].material = enemies[displayFloor][i] ? EnemyMaterials[i] : EnemySilhouetteMaterials[i];
+        FloorText.text = (displayFloor + 1).ToString();
+        if (enemies[displayFloor][18]) MachinesText.text = ((int)(machines[displayFloor] * 1.25 + Bomb.GetBatteryCount())).ToString();
+        else MachinesText.text = machines[displayFloor].ToString();
 
-        if (doIntro) yield return new WaitForSeconds(1f);
-        if (blackouts[floor])
+        if (doIntro) yield return new WaitForSeconds(1.5f);
+        if (blackouts[displayFloor])
         {
+            Audio.PlaySoundAtTransform(BlackoutClip.name, transform);
             ModuleRenderer.material = ModuleBGMaterials[1];
-            for (int i = 0; i < 24; i++) EnemyRenderers[i].transform.parent.GetComponent<MeshRenderer>().material = ButtonMaterials[1];
+            for (int i = 0; i < 24; i++) EnemyRenderers[i].transform.parent.GetComponent<MeshRenderer>().material = ColorMaterials[0];
         }
+    }
+
+    IEnumerator FlashDisplay()
+    {
+        while (struckInSubmission)
+        {
+            DisplaySelectable.GetComponent<MeshRenderer>().material = ColorMaterials[1];
+            yield return new WaitForSeconds(0.5f);
+            DisplaySelectable.GetComponent<MeshRenderer>().material = ColorMaterials[2];
+            yield return new WaitForSeconds(0.5f);
+        }
+        DisplaySelectable.GetComponent<MeshRenderer>().material = ColorMaterials[1];
     }
 
     IEnumerator StrikeStrikeStrike()
@@ -795,6 +846,17 @@ public class dandysFloors : MonoBehaviour
             GetComponent<KMBombModule>().HandleStrike();
             yield return new WaitForSeconds(2 / 3f);
         }
+    }
+
+    IEnumerator Solve()
+    {
+        SubmissionMode.SetActive(false);
+        DandyIcon.gameObject.SetActive(true);
+        Audio.PlaySoundAtTransform(SolveClip.name, transform);
+        yield return new WaitForSeconds(2.6f);
+        Log("Inputted the correct number of ichor. Module solved!");
+        GetComponent<KMBombModule>().HandlePass();
+        ModuleSolved = true;
     }
 
 #pragma warning disable 414
