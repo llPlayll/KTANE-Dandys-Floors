@@ -67,6 +67,7 @@ public class dandysFloors : MonoBehaviour
     int[] inventory = new int[3] { -1, -1, -1 };
     int[] itemUsages = new int[3] { 0, 0, 0 };
     List<int> usedRarities = new List<int>();
+    List<int> floorItemsUsed = new List<int>();
     int proteinBarsUsed;
     int prevBlackout = 0;
     
@@ -126,7 +127,7 @@ public class dandysFloors : MonoBehaviour
         Audio.PlayGameSoundAtTransform(KMSoundOverride.SoundEffect.ButtonPress, key.transform);
         int keyIdx = SubmissionKeypad.IndexOf(key);
         if (keyIdx < 10 && input.Length != 4) input += keyIdx.ToString();
-        else if (keyIdx == 10 && input.Length > 0) input = input.Substring(0, input.Length - 1);
+        else if (keyIdx == 10) input = "";
         else if (keyIdx == 11)
         {
             if (input == ichor.ToString()) StartCoroutine("Solve");
@@ -207,6 +208,7 @@ public class dandysFloors : MonoBehaviour
         {
             if (blackouts[floor]) prevBlackout = floor;
         }
+        floorItemsUsed = new List<int>();
         floor++;
         Log($"Floor #{floor + 1}:");
 
@@ -222,7 +224,13 @@ public class dandysFloors : MonoBehaviour
         GenerateMachines();
         GenerateItems();
         PickUpItems();
-        CalculateDamage();
+        ProcessDamage();
+        UseItems();
+        if (hp <= 0)
+        {
+            Log("Player's HP is now 0 or lower, press the submit button on this floor and submit the answer.");
+            done = true;
+        }
 
         StartCoroutine("DisplayStage", floor);
     }
@@ -346,6 +354,16 @@ public class dandysFloors : MonoBehaviour
         Log($"Inventory after picking up the items - {inventory.Select(x => x == -1 ? "Empty" : ItemNames[x]).Join(", ")}.");
     }
 
+    void UseItems()
+    {
+        Log("Using items in player's inventory:");
+        for (int i = 0; i < 3; i++)
+        {
+            if (inventory[i] != -1) TryToUseItem(i);
+        }
+        Log($"Inventory after using items - {inventory.Select(x => x == -1 ? "Empty" : ItemNames[x]).Join(", ")}.");
+    }
+
     void UseThenPickup(int item)
     {
         int itemRarity = GetItemRarity(item);
@@ -369,8 +387,51 @@ public class dandysFloors : MonoBehaviour
     void FullyUseItem(int slot)
     {
         ichor += ItemRaritiesIchor[GetItemRarity(inventory[slot])];
+        if (inventory[slot] == 8) usedRarities.Add(2);
+        else if (inventory[slot] == 12) usedRarities.Add(3);
+        else usedRarities.Add(GetItemRarity(inventory[slot]));
+        if (inventory[slot] == 4) proteinBarsUsed++;
+        floorItemsUsed.Add(inventory[slot]);
         inventory[slot] = -1;
         itemUsages[slot] = 0;
+    }
+
+    void UseItemOnce(int slot)
+    {
+        itemUsages[slot]--;
+        if (itemUsages[slot] == 0)
+        {
+            if (inventory[slot] == 8)
+            {
+                ichor += ItemRaritiesIchor[2];
+                usedRarities.Add(2);
+            }
+            else if (inventory[slot] == 12)
+            {
+                ichor += ItemRaritiesIchor[3];
+                usedRarities.Add(3);
+            }
+            else
+            {
+                ichor += ItemRaritiesIchor[GetItemRarity(inventory[slot])];
+                usedRarities.Add(GetItemRarity(inventory[slot]));
+            }
+            if (inventory[slot] == 4) proteinBarsUsed++;
+            Log($"Using {ItemNames[inventory[slot]]} from slot #{slot + 1}. Player now has {ichor} ichor.");
+            floorItemsUsed.Add(inventory[slot]);
+            inventory[slot] = -1;
+        }
+        else
+        {
+            Log($"Using {ItemNames[inventory[slot]]} from slot #{slot + 1} once. This item now has {itemUsages[slot]} left.");
+            floorItemsUsed.Add(inventory[slot]);
+        }
+    }
+
+    void TryToUseItem(int slot)
+    {
+        if (CanUseItem(inventory[slot])) UseItemOnce(slot);
+        else Log($"Unable to use the {ItemNames[inventory[slot]]} from slot #{slot + 1}. Skipping over it.");
     }
 
     void Start()
@@ -514,89 +575,103 @@ public class dandysFloors : MonoBehaviour
         }
     }
 
-    int CalculateDamage()
+    void ProcessDamage()
     {
         Log("Processing Damage:");
-        int res = 0;
+        bool takenDamage = false;
         if (enemies[floor][16]) //Goob
         { 
             if (!isPrime(floor + 1) && floor != 1)
             {
-                Log("Goob: Floor number is composite - Goob deals 1 damage.");
-                res++;
+                Log("Goob: Floor number is composite - Goob deals 1 damage:");
+                TakeDamage(1);
+                takenDamage = true;
             }
             else if (enemies[floor][23])
             {
                 Log("Goob: Floor number is prime and Dandy is present - Goob deals 3 damage!");
-                res += 3;
+                TakeDamage(3);
+                takenDamage = true;
             }
             else
             {
                 Log("Goob: Floor number is prime and Dandy is not present - other enemies' rules are not checked!");
-                return 0;
+                return;
             }
         }
         if (enemies[floor][0] && isPrime(floor + 1)) //Boxten
         {
             Log("Boxten: Floor number is prime - Boxten deals 1 damage.");
-            res++; 
+            TakeDamage(1);
+            takenDamage = true;
         }
         if (enemies[floor][1] && (enemies[floor][21] || enemies[floor][23]))  //Cosmo
         {
             Log("Cosmo: Dandy/Sprout is present - Cosmo deals 1 damage.");
-            res++;
+            TakeDamage(1);
+            takenDamage = true;
         }
         if (enemies[floor][2] && (isFibonacci(floor + 1)) && (floor > 7))  //Poppy
         {
             Log("Poppy: Floor number is present in the Fibonacci sequence and greater than 7 - Poppy deals 1 damage.");
-            res++;
+            TakeDamage(1);
+            takenDamage = true;
         }
         if (enemies[floor][3] && inventory.Contains(10)) //Looey
         {
             Log("Looey: Player has an Air Horn in their inventory - Looey deals 1 damage. The Air Horn is used immediately.");
-            res++;
+            TakeDamage(1);
+            takenDamage = true;
         }
         if (enemies[floor][4] && machines[floor] > 8 && characterNum != 8) //Shrimpo
         {
             Log("Shrimpo: There are more than 8 machines and the player is not Finn - Shrimpo deals 1 damage.");
-            res++;
+            TakeDamage(1);
+            takenDamage = true;
         }
         if (enemies[floor][5] && enemies[floor].Count(s => s) == 6) //Tisha
         {
             Log("Tisha: There are exactly 6 enemies on the floor - Tisha deals 1 damage.");
-            res++;
+            TakeDamage(1);
+            takenDamage = true;
         }
         if (enemies[floor][6] && floor - prevBlackout == 1) //Brightney
         {
             Log("Brightney: There was a blackout on the previous floor - Brightney deals 1 damage.");
-            res++;
+            TakeDamage(1);
+            takenDamage = true;
         }
         if (enemies[floor][7] && (enemies[floor][8] || enemies[floor][18])) //Connie
         {
             Log("Connie: Finn/Astro is present - Connie deals 1 damage.");
-            res++;
+            TakeDamage(1);
+            takenDamage = true;
         }
         if (enemies[floor][8] && (machines[floor] > 8 || characterNum == 4)) //Finn
         {
             Log("Finn: There are more than 8 machines or the player is Shrimpo - Finn deals 1 damage.");
-            res++;
+            TakeDamage(1);
+            takenDamage = true;
         }
-        if (enemies[floor][9]) Log("Razzle & Dazzle: Razzle & Dazzle doesn't deal damage."); //Razzle & Dazzle
+        // if (enemies[floor][9]) Log("Razzle & Dazzle: Razzle & Dazzle doesn't deal damage."); //Razzle & Dazzle
         if (enemies[floor][10] && inventory.Contains(-1) && ichor < 160 && items.Max() > 11 && !inventory.Contains(14)) //Rodger
         {
             Log("Rodger: Player's inventory is not completely full and doesn't contain an Eject Button, player has less than 160 ichor and at least one item on the floor is Very/Ultra Rare - Rodger deals 1 damage.");
-            res++;
+            TakeDamage(1);
+            takenDamage = true;
         }
         if (enemies[floor][11] && ichor > 600) //Teagan
         {
             Log("Teagan: Player has more than 600 ichor - Teagan deals 1 damage. 100 ichor is subtracted.");
-            res++;
+            TakeDamage(1);
+            takenDamage = true;
             ichor -= 100;
         }
         if (enemies[floor][12] && enemies[floor][10]) //Toodles
         {
             Log("Toodles: Rodger is present - Toodles deals 1 damage.");
-            res++;
+            TakeDamage(1);
+            takenDamage = true;
         }
         if (enemies[floor][13]) //Flutter
         {
@@ -605,7 +680,7 @@ public class dandysFloors : MonoBehaviour
             if (characterNum == 7 || characterNum == 4 || (characterNum == 9 && (floor + 1) % 2 == 0))
             {
                 Log("Flutter: Player is Connie/Shrimpo or Razzle & Dazzle on an even floor - Flutter deals 1 damage.");
-                res++;
+                TakeDamage(1);
             }
             Log($"Flutter: All Pops and Bottles o' Pop are used immediately.");
         }
@@ -616,13 +691,15 @@ public class dandysFloors : MonoBehaviour
             if (machines[floor] == 4)
             {
                 Log("Glisten: There are 4 machines on the floor - Glisten deals 1 damage.");
-                res++;
+                TakeDamage(1);
+                takenDamage = true;
                 glistenDamage = true;
             }
             if (characterNum == 4 || characterNum == 15)
             {
                 Log($"Glisten: Player is Shrimpo/Glisten - Glisten deals 1 {(glistenDamage ? "additional " : "")}damage.");
-                res++;
+                TakeDamage(1);
+                takenDamage = true;
             }
         }
         if (enemies[floor][17]) //Scraps
@@ -631,19 +708,22 @@ public class dandysFloors : MonoBehaviour
             if ((floor + 1) % 3 != 0)
             {
                 Log("Scraps: Floor number is not divisible by 3 - Scraps deals 1 damage.");
-                res++;
+                TakeDamage(1);
+                takenDamage = true;
                 scrapsDamage = true;
             }
             if (enemies[floor][16])
             {
                 Log($"Scraps: Goob is present - Scraps deals 1 {(scrapsDamage ? "additional " : "")}damage.");
-                res++;
+                TakeDamage(1);
+                takenDamage = true;
             }
         }
         if (enemies[floor][18] && (machines[floor] > 7) && (machines[floor] % 4 == 0)) //Astro
         {
             Log("Astro: Number of machines is divisible by 4 and greater than 7 - Astro deals 1 damage.");
-            res++;
+            TakeDamage(1);
+            takenDamage = true;
         }
         if (enemies[floor][19] && ((floor + 1) % 11 != 0 ^ enemies[floor][23])) //Pebble
         {
@@ -655,34 +735,41 @@ public class dandysFloors : MonoBehaviour
             {
                 Log("Pebble: Dandy is not present and floor number is not divisible by 11 - Pebble deals 1 damage.");
             }
-            res++;
+            TakeDamage(1);
+            takenDamage = true;
         }
         if (enemies[floor][20] && characterNum != 22 && !enemies[floor][22] && !inventory.Contains(6) && !inventory.Contains(9)) //Shelly
         {
             Log("Shelly: Vee is not present, player is not Vee and they don't have a Skill Check Candy nor Enigma Candy in their inventory - Shelly deals 1 damage.");
-            res++;
+            TakeDamage(1);
+            takenDamage = true;
         }
         if (enemies[floor][21] && characterNum != 2 && proteinBarsUsed % 2 == 0) //Sprout
         {
             Log("Sprout: Player is not Cosmo and the number of Protein Bars throughout the module is even - Sprout deals 1 damage.");
-            res++;
+            TakeDamage(1);
+            takenDamage = true;
         }
         if (enemies[floor][22]) //Vee
         {
             Log("Vee: Vee deals 1 damage.");
-            res++;
+            TakeDamage(1);
+            takenDamage = true;
         }
         if (enemies[floor][23] && !(enemies[floor][18] || enemies[floor][19] || enemies[floor][20] || enemies[floor][21] || enemies[floor][22]) && DandyPoints() % 5 == 0) //Dandy
         {
             Log($"Dandy: There are no main enemies and the score obtained from the rules ({DandyPoints()}) is divisible by 5 - Dandy kills the player!");
-            return 9999; 
+            hp = 0;
+            done = true;
+            takenDamage = true;
         }
         if (enemies[floor][16]) //Gigi
         {
             if (inventory.Count(i => i == -1) == 3)
             {
                 Log("Gigi: Player's inventory is empty - Gigi deals 1 damage.");
-                res++;
+                TakeDamage(1);
+                takenDamage = true;
             }
             else
             {
@@ -690,7 +777,54 @@ public class dandysFloors : MonoBehaviour
                 inventory[inventory.IndexOf(i => i != -1)] = -1;
             }
         }
-        return res;
+        if (!takenDamage) Log("No damage was dealt by any of the enemies' rules!");
+    }
+
+    void TakeDamage(int n)
+    {
+        for (int i = 0; i < n; i++)
+        {
+            hp--;
+            if (n > 1) Log($"Taking damage {i + 1} of {n}. Player now has {hp} HP.");
+            else Log($"Taking 1 damage. Player now has {hp} HP.");
+            if (characterNum < 18)
+            {
+                if ((hp == 1 || hp == 2) && inventory.Contains(8))
+                {
+                    Log("Healing with a Bandage:");
+                    UseItemOnce(Array.LastIndexOf(inventory, 8));
+                    hp++;
+                    Log($"Player now has {hp} HP");
+                }
+                else if (hp == 1 && inventory.Contains(12) && !inventory.Contains(8))
+                {
+                    Log("Healing with a Health kit:");
+                    UseItemOnce(Array.LastIndexOf(inventory, 12));
+                    hp += 2;
+                    Log($"Player now has {hp} HP");
+                }
+            }
+            else
+            {
+                if (hp == 1 && (inventory.Contains(8) || inventory.Contains(12)))
+                {
+                    int bandageIdx = Array.LastIndexOf(inventory, 8);
+                    int healthkitIdx = Array.LastIndexOf(inventory, 12);
+                    if (Math.Max(bandageIdx, healthkitIdx) == bandageIdx)
+                    {
+                        Log("Healing with a Bandage:");
+                        UseItemOnce(bandageIdx); 
+                    }
+                    else
+                    {
+                        Log("Healing with a Health kit:");
+                        UseItemOnce(healthkitIdx);
+                    }
+                    hp++;
+                    Log($"Player now has {hp} HP");
+                }
+            }
+        }
     }
 
     int DandyPoints()
@@ -750,6 +884,30 @@ public class dandysFloors : MonoBehaviour
         return i < 3 ? 0 : (i < 7 ? 1 : (i < 11 ? 2 : (i < 14 ? 3 : 4)));
     }
 
+    bool CanUseItem (int i)
+    {
+        switch (i)
+        {
+            case 0: return true;
+            case 1: return (enemies[floor][6] || enemies[floor][7] || enemies[floor][8] || enemies[floor][9] || enemies[floor][10] || enemies[floor][11] || enemies[floor][12]) && !floorItemsUsed.Contains(1);
+            case 2: return (enemies[floor][6] || enemies[floor][7] || enemies[floor][8] || enemies[floor][9] || enemies[floor][10] || enemies[floor][11] || enemies[floor][12]) && !floorItemsUsed.Contains(2);
+            case 3: return (enemies[floor][11] || enemies[floor][12] || enemies[floor][13] || enemies[floor][14] || enemies[floor][18] || enemies[floor][19] || enemies[floor][20] || enemies[floor][21]) && !floorItemsUsed.Contains(3);
+            case 4: return new bool[8] { enemies[floor][11], enemies[floor][12], enemies[floor][13], enemies[floor][14], enemies[floor][18], enemies[floor][19], enemies[floor][20], enemies[floor][21] }.Count(e => e) >= 2 && !floorItemsUsed.Contains(4);
+            case 5: return (enemies[floor][18] || enemies[floor][19] || enemies[floor][20] || enemies[floor][21] || enemies[floor][22]) && !floorItemsUsed.Contains(5);
+            case 6: return true;
+            case 7: return true;
+            case 8: return false;
+            case 9: return !floorItemsUsed.Contains(9);
+            case 10: return true;
+            case 11: return (enemies[floor][6] || enemies[floor][7] || enemies[floor][8] || enemies[floor][9] || enemies[floor][10] || enemies[floor][11] || enemies[floor][12]) && !floorItemsUsed.Contains(11);
+            case 12: return false;
+            case 13: return (enemies[floor][6] || enemies[floor][7] || enemies[floor][8] || enemies[floor][9] || enemies[floor][10] || enemies[floor][11] || enemies[floor][12]) && !floorItemsUsed.Contains(13);
+            case 14: return enemies[floor][10] && !floorItemsUsed.Contains(14);
+            case 15: return enemies[floor].Count(e => e) > 4 && !floorItemsUsed.Contains(15);
+            default: return false;
+        }
+    }
+
     string AddS(string n)
     {
         return n.Length > 1 ? "s" : "";
@@ -762,7 +920,6 @@ public class dandysFloors : MonoBehaviour
 
     bool isPrime(int n)
     {
-        Log(n.ToString());
         if (n == 1) return false;
         bool prime = true;
         for (int i = 2; i < (int)Math.Sqrt(n) + 1; i++)
