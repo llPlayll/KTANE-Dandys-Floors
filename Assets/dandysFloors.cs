@@ -60,6 +60,7 @@ public class dandysFloors : MonoBehaviour
     bool done, detonating;
     string input = "";
     bool struckInSubmission;
+    bool inRecoveryMode;
 
     int characterNum;
     int hp;
@@ -156,6 +157,7 @@ public class dandysFloors : MonoBehaviour
             SubmissionMode.SetActive(true);
             ModuleRenderer.material = ModuleBGMaterials[0];
             curRecoveryFloor = -1;
+            inRecoveryMode = false;
         }
         else StartCoroutine("DisplayStage", curRecoveryFloor);
     }
@@ -168,6 +170,7 @@ public class dandysFloors : MonoBehaviour
         StageMode.SetActive(true);
         foreach (KMSelectable enemy in EnemySelectables) enemy.gameObject.transform.Find("HL").gameObject.SetActive(true);
         struckInSubmission = false;
+        inRecoveryMode = true;
         curRecoveryFloor = 0;
         StartCoroutine("DisplayStage", curRecoveryFloor);
         SubmissionMode.SetActive(false);
@@ -1017,16 +1020,79 @@ public class dandysFloors : MonoBehaviour
     }
 
 #pragma warning disable 414
-    private readonly string TwitchHelpMessage = @"Use !{0} to do something.";
+    private readonly string TwitchHelpMessage = @"Use <!{0} submit> to press the submit button during stages. Use <!{0} submit #> to submit an amount of ichor during submission mode. Use <!{0} recovery> to enter recovery mode, and use <!{0} next> to progress stages in recovery mode.";
 #pragma warning restore 414
 
     IEnumerator ProcessTwitchCommand(string Command)
     {
-        yield return null;
+        var Args = Command.ToLowerInvariant().Split(new[] { " " }, StringSplitOptions.RemoveEmptyEntries);
+        if (Args.Length == 0) yield break;
+        else if (!inStages) yield return "sendtochaterror Unable to execute any commands now!";
+        else
+        {
+            switch (Args[0])
+            {
+                case "submit":
+                    if (Args.Length == 2 && !inSubmission) yield return "sendtochaterror Unable to submit an answer not in submission mode!";
+                    else if (Args.Length != 2 && inSubmission) yield return "sendtochaterror Didn't provide an answer to submit!";
+                    else
+                    {
+                        if (inSubmission)
+                        {
+                            yield return null;
+                            foreach (char c in Args[1])
+                            {
+                                SubmissionKeypad[c - '0'].OnInteract();
+                                yield return new WaitForSeconds(0.1f);
+                            }
+                            SubmissionKeypad[11].OnInteract();
+                        }
+                        else
+                        {
+                            yield return null;
+                            StageSubmitButton.OnInteract();
+                        }
+                    }
+                    break;
+                case "recovery":
+                    if (!inStages || !struckInSubmission) yield return "sendtochaterror Unable to enter recovery mode now!";
+                    else
+                    {
+                        yield return null;
+                        DisplaySelectable.OnInteract();
+                    }
+                    break;
+                case "next":
+                    if (!inRecoveryMode) yield return "sendtochaterror Cannot progress stages not in recovery mode!";
+                    else
+                    {
+                        yield return null;
+                        EnemySelectables[0].OnInteract();
+                    }
+                    break;
+                default:
+                    yield return "sendtochaterror Invalid command!";
+                    break;
+            }
+        }
     }
 
     IEnumerator TwitchHandleForcedSolve()
     {
-        yield return null;
+        StopCoroutine("StrikeStrikeStrike");
+        if (!inSubmission)
+        {
+            done = true;
+            EnterSubmissionMode();
+        }
+        SubmissionKeypad[10].OnInteract();
+        yield return new WaitForSeconds(0.1f);
+        foreach (char c in ichor.ToString())
+        {
+            SubmissionKeypad[c - '0'].OnInteract();
+            yield return new WaitForSeconds(0.1f);
+        }
+        SubmissionKeypad[11].OnInteract();
+        yield return new WaitForSeconds(SolveClip.length);
     }
 }
