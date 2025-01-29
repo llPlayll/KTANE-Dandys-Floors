@@ -80,6 +80,7 @@ public class dandysFloors : MonoBehaviour
     List<bool> blackouts = new List<bool>();
     List<int> items;
     int itemCount;
+    bool unicorn;
 
     void Awake()
     {
@@ -370,6 +371,31 @@ public class dandysFloors : MonoBehaviour
             if (inventory[i] != -1) TryToUseItem(i);
         }
         Log($"Inventory after using items - {inventory.Select(x => x == -1 ? "Empty" : ItemNames[x]).Join(", ")}.");
+        if (characterNum < 18)
+        {
+            if (hp == 3 && inventory[0] == 12 && inventory[1] == 12 && inventory[2] == 12)
+            {
+                Log($"Player is not a main character, has 3 HP and 3 Health kits - submit 9999 ichor as an answer!");
+                done = true;
+                unicorn = true;
+                ichor = 9999;
+            }
+        }
+        else
+        {
+            if (hp == 2 && (inventory[0] == 8 || inventory[0] == 12) && (inventory[1] == 8 || inventory[1] == 12) && (inventory[2] == 8 || inventory[2] == 12))
+            {
+                Log($"Player is a main character, has 2 HP and 3 Bandages/Health kits - submit 4999 ichor as an answer!");
+                done = true;
+                unicorn = true;
+                ichor = 4999;
+            }
+        }
+        if (unicorn)
+        {
+            StrikeText.text = "UNICORN NOT\nACTIVATED!";
+            StrikeText.fontSize = 170;
+        }
     }
 
     void UseThenPickup(int item)
@@ -503,13 +529,10 @@ public class dandysFloors : MonoBehaviour
                 "Whiteout"
             });
 
-        if (Bomb.GetModuleNames().Where(a => !ignoredModules.Contains(a)).ToList().Count < 2)
+        if (Bomb.GetModuleNames().Where(a => !ignoredModules.Contains(a)).ToList().Count < 2) 
         {
-            Log("Not enough modules to generate even a single stage - submit 0 ichor!");
-            StrikeText.text = "NO FLOORS\nGENERATED!";
-            StrikeText.fontSize = 180;
-            canStart = false;
-            done = true;
+            Log("Not enough modules to generate even a single stage!");
+            EnterSubmissionMode();
         }
         else CalculateSeed();
     }
