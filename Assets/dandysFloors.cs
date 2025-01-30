@@ -240,6 +240,7 @@ public class dandysFloors : MonoBehaviour
             Log("Player's HP is now 0 or lower, press the submit button on this floor and submit the answer.");
             done = true;
         }
+        else Log($"Player's HP after this floor is {hp}.");
 
         StartCoroutine("DisplayStage", floor);
     }
@@ -439,11 +440,13 @@ public class dandysFloors : MonoBehaviour
             {
                 ichor += ItemRaritiesIchor[2];
                 usedRarities.Add(2);
+                hp++;
             }
             else if (inventory[slot] == 12)
             {
                 ichor += ItemRaritiesIchor[3];
                 usedRarities.Add(3);
+                hp = characterNum < 18 ? 3 : 2;
             }
             else
             {
@@ -452,6 +455,7 @@ public class dandysFloors : MonoBehaviour
             }
             if (inventory[slot] == 4) proteinBarsUsed++;
             Log($"Using {ItemNames[inventory[slot]]} from slot #{slot + 1}. Player now has {ichor} ichor.");
+            if (inventory[slot] == 8 || inventory[slot] == 12) Log($"Player now has {hp} HP.");
             floorItemsUsed.Add(inventory[slot]);
             inventory[slot] = -1;
         }
@@ -832,41 +836,11 @@ public class dandysFloors : MonoBehaviour
             hp--;
             if (n > 1) Log($"Taking damage {i + 1} of {n}. Player now has {hp} HP.");
             else Log($"Taking 1 damage. Player now has {hp} HP.");
-            if (characterNum < 18)
+            for (int s = 2; s > -1; s--)
             {
-                if ((hp == 1 || hp == 2) && inventory.Contains(8))
+                if (inventory[s] == 8 || inventory[s] == 12)
                 {
-                    Log("Healing with a Bandage:");
-                    UseItemOnce(Array.LastIndexOf(inventory, 8));
-                    hp++;
-                    Log($"Player now has {hp} HP");
-                }
-                else if (hp == 1 && inventory.Contains(12) && !inventory.Contains(8))
-                {
-                    Log("Healing with a Health kit:");
-                    UseItemOnce(Array.LastIndexOf(inventory, 12));
-                    hp += 2;
-                    Log($"Player now has {hp} HP");
-                }
-            }
-            else
-            {
-                if (hp == 1 && (inventory.Contains(8) || inventory.Contains(12)))
-                {
-                    int bandageIdx = Array.LastIndexOf(inventory, 8);
-                    int healthkitIdx = Array.LastIndexOf(inventory, 12);
-                    if (Math.Max(bandageIdx, healthkitIdx) == bandageIdx)
-                    {
-                        Log("Healing with a Bandage:");
-                        UseItemOnce(bandageIdx); 
-                    }
-                    else
-                    {
-                        Log("Healing with a Health kit:");
-                        UseItemOnce(healthkitIdx);
-                    }
-                    hp++;
-                    Log($"Player now has {hp} HP");
+                    if (ShouldHeal(inventory[s] == 8)) UseItemOnce(s);
                 }
             }
         }
@@ -941,15 +915,25 @@ public class dandysFloors : MonoBehaviour
             case 5: return (enemies[floor][18] || enemies[floor][19] || enemies[floor][20] || enemies[floor][21] || enemies[floor][22]) && !floorItemsUsed.Contains(5); //Stealth candy
             case 6: return true; //Skill Check candy
             case 7: return true; //Jumper cable
-            case 8: return false; //Bandage
+            case 8: return ShouldHeal(true); //Bandage
             case 9: return !floorItemsUsed.Contains(9); //Enigma candy
             case 10: return true; //Air horn
             case 11: return (enemies[floor][6] || enemies[floor][7] || enemies[floor][8] || enemies[floor][9] || enemies[floor][10] || enemies[floor][11] || enemies[floor][12]) && !floorItemsUsed.Contains(11); //Bottle o' Pop
-            case 12: return false; //Health kit
+            case 12: return ShouldHeal(false); //Health kit
             case 13: return (enemies[floor][6] || enemies[floor][7] || enemies[floor][8] || enemies[floor][9] || enemies[floor][10] || enemies[floor][11] || enemies[floor][12]) && !floorItemsUsed.Contains(13); //Bob o' Chocolates
             case 14: return enemies[floor][10] && !floorItemsUsed.Contains(14); //Eject button
             case 15: return enemies[floor].Count(e => e) > 4 && !floorItemsUsed.Contains(15); //Smoke bomb
             default: return false;
+        }
+    }
+
+    bool ShouldHeal(bool bandage)
+    {
+        if (characterNum < 18) return hp == 1;
+        else
+        {
+            if (bandage) return hp == 2 || hp == 1;
+            else return hp == 1 && !inventory.Contains(8);
         }
     }
 
