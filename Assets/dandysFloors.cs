@@ -114,12 +114,13 @@ public class dandysFloors : MonoBehaviour
     {
         StageSubmitButton.AddInteractionPunch();
         Audio.PlayGameSoundAtTransform(KMSoundOverride.SoundEffect.ButtonPress, StageSubmitButton.transform);
-        if (!done)
+        if (!inRecoveryMode && !done)
         {
             GetComponent<KMBombModule>().HandleStrike();
             Log("You pressed the submit button when you shouldn't have. Strike!");
         }
         else EnterSubmissionMode();
+
     }
 
     void KeyPress(KMSelectable key)
@@ -155,15 +156,7 @@ public class dandysFloors : MonoBehaviour
         key.AddInteractionPunch();
         Audio.PlayGameSoundAtTransform(KMSoundOverride.SoundEffect.ButtonPress, key.transform);
         curRecoveryFloor++;
-        if (curRecoveryFloor > floor)
-        {
-            Audio.PlaySoundAtTransform(DoorSlamClip.name, transform);
-            StageMode.SetActive(false);
-            SubmissionMode.SetActive(true);
-            ModuleRenderer.material = ModuleBGMaterials[0];
-            curRecoveryFloor = -1;
-            inRecoveryMode = false;
-        }
+        if (curRecoveryFloor > floor) EnterSubmissionMode();
         else StartCoroutine("DisplayStage", curRecoveryFloor);
     }
 
@@ -205,9 +198,9 @@ public class dandysFloors : MonoBehaviour
         inSubmission = true;
         DandyIcon.gameObject.SetActive(false);
         StageMode.SetActive(false);
-        StageSubmitButton.gameObject.SetActive(false);
         SubmissionMode.SetActive(true);
-        Log($"Entering submission mode: correct answer - {ichor} ichor.");
+        if (!inRecoveryMode) Log($"Entering submission mode: correct answer - {ichor} ichor.");
+        inRecoveryMode = false;
     }
 
     void GenerateStage()
