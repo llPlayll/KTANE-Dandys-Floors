@@ -922,12 +922,12 @@ public class dandysFloors : MonoBehaviour
 
     bool ShouldHeal(bool bandage)
     {
-        if (characterNum < 18) return hp == 1;
-        else
+        if (characterNum < 18) 
         {
             if (bandage) return hp == 2 || hp == 1;
             else return hp == 1 && !inventory.Contains(8);
         }
+        else return hp == 1;
     }
 
     string AddS(string n)
