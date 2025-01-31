@@ -54,7 +54,7 @@ public class dandysFloors : MonoBehaviour
     string fullSeed = "";
     string usingSeed = "";
 
-    float cooldown = 0;
+    float cooldown = 0; // Originally, this module was supposed to have a 10-second cooldown between stage generations, but this idea was scrapped before the module's release
     bool canStart;
     int lastSolves, curSolves = 0;
     bool inStages, inSubmission;
@@ -543,6 +543,7 @@ public class dandysFloors : MonoBehaviour
             else if (curSolves == Bomb.GetModuleNames().Where(a => !ignoredModules.Contains(a)).ToList().Count && curSolves > 0) EnterSubmissionMode();
             else
             {
+                /*
                 if (cooldown > 0)
                     cooldown -= Time.deltaTime;
                 else
@@ -555,10 +556,22 @@ public class dandysFloors : MonoBehaviour
                             inStages = true;
                         }
                         GenerateStage();
-                        //cooldown = 10f;
+                        cooldown = 10f;
                     }
                     lastSolves = curSolves;
                 }
+                */
+
+                if (curSolves > lastSolves)
+                {
+                    if (!inStages)
+                    {
+                        EnterStageMode();
+                        inStages = true;
+                    }
+                    GenerateStage();
+                }
+                lastSolves = curSolves;
             }
         }
     }
