@@ -47,7 +47,6 @@ public class dandysFloors : MonoBehaviour
     string[] ItemRarityNames = new string[5] { "Common", "Uncommon", "Rare", "Very Rare", "Ultra Rare" };
     int[] EnemyRaritiesIchor = new int[5] { 5, 6, 8, 10, 25 };
     int[] ItemRaritiesIchor = new int[5] { 1, 2, 3, 5, 10 };
-    int[] EnemyChances = new int[5] { 2, 3, 5, 8, 10 };
     string base36 = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ";
 
     string initSeed = "";
@@ -240,13 +239,14 @@ public class dandysFloors : MonoBehaviour
 
     void GenerateEnemies()
     {
-        int enemyCount = Math.Min(2 + (int)floor / 10, 6);
+        int enemyCount = Math.Min(2 + (int)(floor + 1) / 10, 6);
         int idx = 0;
+        int[] randomIdxs = Enumerable.Range(0, 24).ToArray().Shuffle();
         bool[] floorEnemies = new bool[24];
         while (floorEnemies.Count(e => e) != enemyCount)
         {
-            int upper = EnemyChances[GetEnemyRarity(idx)];
-            floorEnemies[idx] = Rnd.Range(0, upper) == 1;
+            int upper = GetEnemyProbability(GetEnemyRarity(randomIdxs[idx]));
+            floorEnemies[randomIdxs[idx]] = Rnd.Range(0, upper) == 1;
             idx = (idx + 1) % 24;
         }
         enemies.Add(floorEnemies);
@@ -457,7 +457,7 @@ public class dandysFloors : MonoBehaviour
         }
         else
         {
-            Log($"Using {ItemNames[inventory[slot]]} from slot #{slot + 1} once. This item now has {itemUsages[slot]} left.");
+            Log($"Using {ItemNames[inventory[slot]]} from slot #{slot + 1} once. This item now has {itemUsages[slot]} usages left.");
             floorItemsUsed.Add(inventory[slot]);
         }
     }
@@ -910,6 +910,25 @@ public class dandysFloors : MonoBehaviour
     {
         if (i == 8 || i == 12) return 5;
         return i < 3 ? 0 : (i < 7 ? 1 : (i < 11 ? 2 : (i < 14 ? 3 : 4)));
+    }
+
+    int GetEnemyProbability(int e)
+    {
+        switch (e)
+        {
+            case 0:
+                return 2;
+            case 1:
+                return Math.Max(2, (int)Math.Round(Mathf.Lerp(3, 2, floor / 19)));
+            case 2:
+                return Math.Max(10, (int)Math.Round(Mathf.Lerp(20, 10, floor / 19)));
+            case 3:
+                return Math.Max(25, (int)Math.Round(Mathf.Lerp(50, 25, floor / 19)));
+            case 4:
+                return (floor + 1) % 6 == 0 ? 1 : (floor > 5 ? 2 : 0);
+            default:
+                return 0;
+        }
     }
 
     bool CanUseItem (int i)
