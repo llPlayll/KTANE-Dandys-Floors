@@ -396,20 +396,23 @@ public class dandysFloors : MonoBehaviour
     {
         int itemRarity = GetItemRarity(item);
         string usedItem = "";
-        for (int i = 2; i > -1; i--)
+        int[] inventoryRarities = inventory.Select(x => GetItemRarity(x)).ToArray();
+        if (inventoryRarities.Min() >= itemRarity) Log($"Skipping over {ItemNames[item]} as its rarity is not higher than any of the inventory's items' rarities.");
+        else
         {
-            int rarity = GetItemRarity(inventory[i]);
-            if (rarity < itemRarity)
+            for (int i = 2; i > -1; i--)
             {
-                usedItem = ItemNames[inventory[i]];
-                FullyUseItem(i);
-                inventory[i] = item;
-                itemUsages[i] = item == 13 ? 5 : 1;
-                Log($"Using {usedItem} from slot #{i + 1} to pick up {ItemNames[item]}. Player now has {ichor} ichor.");
-                break;
+                if (GetItemRarity(inventory[i]) == inventoryRarities.Min())
+                {
+                    usedItem = ItemNames[inventory[i]];
+                    FullyUseItem(i);
+                    inventory[i] = item;
+                    itemUsages[i] = item == 13 ? 5 : 1;
+                    Log($"Using {usedItem} from slot #{i + 1} to pick up {ItemNames[item]}. Player now has {ichor} ichor.");
+                    break;
+                }
             }
         }
-        if (usedItem == "") Log($"Skipping over {ItemNames[item]} as its rarity is not higher than any of the inventory's items' rarities.");
     }
 
     void FullyUseItem(int slot)
