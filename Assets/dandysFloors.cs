@@ -539,7 +539,6 @@ public class dandysFloors : MonoBehaviour
         if (!inSubmission)
         {
             int curSolves = Bomb.GetSolvedModuleNames().Where(a => !ignoredModules.Contains(a)).ToList().Count;
-            Log($"cur={curSolves}, last={lastSolves}, non-ignored={Bomb.GetSolvableModuleNames().Where(a => !ignoredModules.Contains(a)).ToList().Count}");
             if (curSolves > lastSolves && done) EnterStrikeMode();
             else if (curSolves == Bomb.GetSolvableModuleNames().Where(a => !ignoredModules.Contains(a)).ToList().Count && curSolves > 0) EnterSubmissionMode();
             else
