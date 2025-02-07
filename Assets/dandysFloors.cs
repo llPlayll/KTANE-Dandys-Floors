@@ -54,7 +54,6 @@ public class dandysFloors : MonoBehaviour
     string usingSeed = "";
 
     float cooldown = 0; // Originally, this module was supposed to have a 10-second cooldown between stage generations, but this idea was scrapped before the module's release
-    bool canStart;
     int lastSolves, curSolves = 0;
     bool inStages, inSubmission;
     bool done, detonating;
@@ -83,8 +82,6 @@ public class dandysFloors : MonoBehaviour
 
     void Awake()
     {
-        ModuleId = ModuleIdCounter++;
-        GetComponent<KMBombModule>().OnActivate += delegate () { canStart = true; };
         DandyIcon.OnInteract += delegate () { DandyIconPress(); return false; };
         foreach (KMSelectable enemy in EnemySelectables) {
             enemy.OnInteract += delegate () { EnemyPress(enemy); return false; };
@@ -138,7 +135,7 @@ public class dandysFloors : MonoBehaviour
             {
                 Log("Inputted the incorrect number of ichor. Strike!");
                 GetComponent<KMBombModule>().HandleStrike();
-                if (Bomb.GetModuleNames().Where(a => !ignoredModules.Contains(a)).ToList().Count > 1)
+                if (Bomb.GetSolvableModuleNames().Where(a => !ignoredModules.Contains(a)).ToList().Count > 1)
                 {
                     canStartRecovery = true;
                     StartCoroutine("FlashDisplay");
@@ -529,7 +526,7 @@ public class dandysFloors : MonoBehaviour
                 "Whiteout"
             });
 
-        if (Bomb.GetModuleNames().Where(a => !ignoredModules.Contains(a)).ToList().Count < 2) 
+        if (Bomb.GetSolvableModuleNames().Where(a => !ignoredModules.Contains(a)).ToList().Count < 2) 
         {
             Log("Not enough modules to generate even a single stage!");
             EnterSubmissionMode();
@@ -539,11 +536,12 @@ public class dandysFloors : MonoBehaviour
 
     void Update()
     {
-        if (canStart && !inSubmission)
+        if (!inSubmission)
         {
             int curSolves = Bomb.GetSolvedModuleNames().Where(a => !ignoredModules.Contains(a)).ToList().Count;
+            Log($"cur={curSolves}, last={lastSolves}, non-ignored={Bomb.GetSolvableModuleNames().Where(a => !ignoredModules.Contains(a)).ToList().Count}");
             if (curSolves > lastSolves && done) EnterStrikeMode();
-            else if (curSolves == Bomb.GetModuleNames().Where(a => !ignoredModules.Contains(a)).ToList().Count && curSolves > 0) EnterSubmissionMode();
+            else if (curSolves == Bomb.GetSolvableModuleNames().Where(a => !ignoredModules.Contains(a)).ToList().Count && curSolves > 0) EnterSubmissionMode();
             else
             {
                 /*
@@ -583,24 +581,27 @@ public class dandysFloors : MonoBehaviour
     {
         Log("Generating the seed:");
 
-        for (int i = 0; i < 6; i++)
+        int SNLen = Bomb.GetSerialNumber().Length;
+        if (SNLen <= 6)
         {
-            string shiftSN = Bomb.GetSerialNumber().Substring(i, 6 - i) + Bomb.GetSerialNumber().Substring(0, i);
-            string convSN = Base36ToBinary(shiftSN);
-            Log($"{shiftSN} into binary: {convSN} ({convSN.Length} bit{AddS(convSN)}{(convSN.Length > 31 ? ", which is too long" : "")})");
-            if (convSN.Length <= 31)
+            for (int i = 0; i < 6; i++)
             {
-                initSeed = convSN.Substring(1);
-                fullSeed = initSeed;
-                break;
+                string shiftSN = Bomb.GetSerialNumber().Substring(i, 6 - i) + Bomb.GetSerialNumber().Substring(0, i);
+                string convSN = Base36ToBinary(shiftSN);
+                Log($"{shiftSN} into binary: {convSN} ({convSN.Length} bit{AddS(convSN)}{(convSN.Length > 31 ? ", which is too long" : "")})");
+                if (convSN.Length <= 31)
+                {
+                    initSeed = convSN.Substring(1);
+                    fullSeed = initSeed;
+                    break;
+                }
             }
         }
-        if (initSeed == "")
+        if (initSeed == "" || SNLen > 6)
         {
             Log("Could not generate the run's seed - submit 0 ichor!");
             StrikeText.text = "SEED\nNOT\nFOUND!";
             StrikeText.fontSize = 250;
-            canStart = false;
             done = true;
         }
         else

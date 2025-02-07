@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="initial-scale=1">
@@ -33,7 +33,7 @@
     }
     
     .page-bg-04 {
-        background-image: url("img/Dandy's Floors/pages/page-bg-noise-04d2.png");
+        background-image: url("img/Dandy's Floors/pages/page-bg-noise-04d.png");
     }
     
     .page-bg-05 {
@@ -52,7 +52,7 @@
     }
     
     .dark .page-bg-04 {
-        background-image: url("img/Dandy's Floors/pages/page-bg-noise-04d2-dark.png");
+        background-image: url("img/Dandy's Floors/pages/page-bg-noise-04d-dark.png");
     }
     
     .dark .page-bg-05 {
@@ -70,17 +70,19 @@
             <div class="page-content">
                 <img src="img/Component/Dandy's Floors.svg" class="diagram">
                 <h2>On the Subject of Dandy's Floors</h2>
-                <p class="flavour-text">
-                    “Cosmo” - what a familiar name...
-                </p>
+                <p class="flavour-text">“Cosmo” - what a familiar name...</p>
                 <ul>
-                    <li>Initially, there is a flower with 6 colored petals on the module. To solve this module you'll have to create a Dandy's World run simulation and send overall ichor gained as an answer.</li>
-                    <li>Convert bomb's serial number from base-36 to base-2. If the number is longer than 31 bits, shift SN by 1 symbol to the right (e.g. ZY4AS2 → Y4AS2Z) until the number is shorter than 32 bits. If this doesn't happen after 6 tries, <b>press the flower and send 0 ichor as an answer</b>. If the number is shorter than 31 bits, do not prepend leading zeroes to it. Delete the first bit. Result will be called the <b>starting seed</b>.</li>
+                    <li>Initially, there is a flower with 6 colored petals on the module. To solve this module you'll have to create a Dandy’s World run simulation and send overall ichor gained as an answer.</li>
+                    <li>
+                        Convert bomb’s serial number from base-36 to base-2. If the number is longer than 31 bits, shift SN by 1 symbol to the right (e.g. ZY4AS2 → Y4AS2Z) until the number is shorter than 32 bits.
+                        If this doesn’t happen after 6 tries, <strong>press the flower and send 0 ichor as an answer</strong>. If the number is shorter than 31 bits, do not prepend leading zeroes to it. Delete the first bit.
+                        Result will be called the <strong>starting seed</strong>.
+                    </li>
                     <li>After solving a module, Dandy’s Floors will enter Stage mode. For every floor, note down the amount of machines on the top of the module (Machines:&nbsp;#) and also what enemies were on the floor (2 to 6 enemies).</li>
                 </ul>
                 <h3>General rules:</h3>
                 <ol>
-                    <li>Non-main characters have 3 HP and 3 inventory slots. Main characters have 2 HP and 3 inventory slots. To find out your character, refer to "Obtaining pseudo-random information".</li>
+                    <li>Non-main characters have 3 HP and 3 inventory slots. Main characters have 2 HP and 3 inventory slots. To find out your character, refer to “Obtaining pseudo-random information”.</li>
                     <li>Using an item gives ichor:
                         <ul>
                             <li>Common item: 1 ichor.</li>
@@ -101,7 +103,9 @@
                         Also, if there is an enemy on the floor that matches your character, you’ll earn extra 40 ichor.
                     </li>
                     <li>Every machine gives 5 ichor.</li>
-                    <li>If there is a Bandage or a Health kit and player’s inventory is full, the last item (that isn't a Bandage or a Health kit) in the inventory is used. The Bandage/Health kit goes in place of the used item. Clarifications:
+                    <li>
+                        If there is a Bandage or a Health kit and player’s inventory is full, the last item (that isn't a Bandage or a Health kit) in the inventory is used.
+                        The Bandage/Health kit goes in place of the used item. Clarifications:
                     </li>
                 </ol>
             </div>
@@ -119,12 +123,12 @@
                 <ul style="margin-top:0em; margin-bottom:0em">
                     <li>If the player has 1 or 2 HP and has a Bandage in their inventory, the bandage is used, healing 1 HP.</li>
                     <li>Otherwise, if the player has 1 HP and the player has a Health kit but not a Bandage in their inventory, then the Health kit is used, healing 2 HP.</li>
-                    <li>If the player has 3 HP and 3 Health kits in their inventory, <b>submit 9999 ichor as an answer.</b> This rule applies only after applying all other floor rules.</li>
+                    <li>If the player has 3 HP and 3 Health kits in their inventory, <strong>submit 9999 ichor as an answer.</strong> This rule applies only after applying all other floor rules.</li>
                 </ul>
                 <h4 style="margin-top:0em; margin-bottom:0em">Else:</h4>
                 <ul style="margin-top:0em; margin-bottom:0em">
                     <li>If the player has 1 HP and has a Bandage/Health kit in their inventory, the Bandage/Health kit is used, healing 1 HP.</li>
-                    <li>If the player has 2 HP and 3 Bandages/Health kits in inventory (not necessarily 3 Bandages or 3 Health kits, e.g. 2 Bandages and 1 Health kit still counts), <b>submit 4999 ichor as an answer.</b> This rule applies only after applying all other floor rules.</li>
+                    <li>If the player has 2 HP and 3 Bandages/Health kits in inventory (not necessarily 3 Bandages or 3 Health kits, e.g. 2 Bandages and 1 Health kit still counts), <strong>submit 4999 ichor as an answer.</strong> This rule applies only after applying all other floor rules.</li>
                 </ul>
             </div>
             <ol start=6>
@@ -137,11 +141,11 @@
                 </li>
                 <li style="margin-top:0em">Rule order:
                     <ol style="margin-top:0em; margin-bottom:0em">
-                        <li>Defining floor's items.</li>
-                        <li>Enemy rules. Goob's rule should be applied first, Gigi's rule should be applied last.</li>
+                        <li>Defining floor’s items.</li>
+                        <li>Enemy rules. Goob’s rule should be applied first, Gigi’s rule should be applied last.</li>
                         <li>Item rules. Item rules apply from first to last item in inventory.</li>
                     </ol>
-                    Bandage/Health kit usages happen <b>at the same time</b> as taking damage. Also, if you already took damage and after that got a Bandage or a Health kit, then probably it should be used. Check rules above. If after usage of all Bandages/Health kits in inventory you have less than 1 HP, you must press "SUBMIT?" button on this stage.
+                    Bandage/Health kit usages happen <strong>at the same time</strong> as taking damage. Also, if you already took damage and after that got a Bandage or a Health kit, then probably it should be used. Check rules above. If after usage of all Bandages/Health kits in inventory you have less than 1 HP, you must press “SUBMIT?” button on this stage.
                 </li>
             </ol>
             <h3>Seed extension:</h3>
@@ -158,9 +162,9 @@
                 <span class="page-header-doc-title">Keep Talking and Nobody Explodes Mod</span>
                 <span class="page-header-section-title">Dandy's Floors</span>
             </div>
-            <div class="page-content">
+            <div class="page-content" style="font-size:0.96em">
                 <h3>Obtaining pseudo-random information:</h3>
-                It is highly recommended to mark which bits are used/unused. Later, this manual will ask to "request N bits". Request of N bits returns first N unused bits from final seed and marks them as used. All tables are index-0.
+                <p>It is highly recommended to mark which bits are used/unused. Later, this manual will ask to “request N bits”. Request of N bits returns first N unused bits from final seed and marks them as used. All tables are index-0.</p>
                 <ol>
                     <li>Request 23 bits. Convert this sequence to base-10 and take it modulo 23. This is the number of your character in the table.</li>
                     <li>At the start of each floor request 2 bits. Translate this number to base-10 and add 1. Result is number of items on the floor.</li>
@@ -172,14 +176,14 @@
                         <li>11110 - very rare.</li>
                         <li>11111 - ultra rare.</li>
                     </ul></li>
-                    <li>If item is ultra rare, request 1 bit. This will be the number of the item in the table among its rarity. Else, request 2 bits, convert this number to base-10, take it modulo (amount of items of the item's rarity). Result is the number of the item in the table among its rarity.</li>
+                    <li>If item is ultra rare, request 1 bit. This will be the number of the item in the table among its rarity. Else, request 2 bits, convert this number to base-10, take it modulo (amount of items of the item’s rarity). Result is the number of the item in the table among its rarity.</li>
                     <li>Repeat steps 3 and 4 for every item on the floor.</li>
                 </ol>
                 <h3>Submission mode:</h3>                
-                If on some floor your HP is 0 or lower, apply all the rules of this floor and press "SUBMIT?" button. If this floor is the correct floor, module will enter Submission mode. If you pressed the button too early, the module will strike. If you try to go to the next floor after you died, <b>THE MODULE WILL STRIKE REPEATEDLY UNTIL BOMB IS EXPLODED OR MODULE IS SOLVED WITH CHEATS</b>. After successfully entering Submission mode, you can safely solve other modules. Also, if all solvable modules are solved, the module will enter Submission mode by itself.<br>
-                In Submission mode you have to enter final amount of ichor modulo 10000. If the entered amount is correct, the module will be solved. Else, module will strike and unlock Recovery mode.
+                <p>If on some floor your HP is 0 or lower, apply all the rules of this floor and press “SUBMIT?” button. If this floor is the correct floor, module will enter Submission mode. If you pressed the button too early, the module will strike. If you try to go to the next floor after you died, <strong>THE MODULE WILL STRIKE REPEATEDLY UNTIL BOMB IS EXPLODED OR MODULE IS SOLVED WITH CHEATS</strong>. After successfully entering Submission mode, you can safely solve other modules. Also, if all solvable modules are solved, the module will enter Submission mode by itself.<br></p>
+                <p>In Submission mode you have to enter final amount of ichor modulo 10000. If the entered amount is correct, the module will be solved. Else, module will strike and unlock Recovery mode.</p>
                 <h3>Recovery mode:</h3>
-                Recovery mode allows to recover missing information. To enter this mode, press the screen. The module will show state of the first floor. Pressing any enemy will show state of the next floor. You can leave this mode by pressing "SUBMIT?" button anytime.
+                <p>Recovery mode allows to recover missing information. To enter this mode, press the screen. The module will show state of the first floor. Pressing any enemy will show state of the next floor. You can leave this mode by pressing “SUBMIT?” button anytime.</p>
             </div>
             <div class="page-footer relative-footer">Page 3 of 10</div>
         </div>
@@ -335,7 +339,7 @@
                     <td><img src="img/Dandy's Floors/toons/Goob.png" width="75" height="75"></td>
                     <td><img src="img/Dandy's Floors/twisteds/Goob.png" width="75" height="75"></td>
                     <td rowspan="2">Deals 1 damage if floor number is composite. Else:
-                    <ul style="margin-top:0em"><li>If Dandy is not on the floor, <b>no enemy rules apply</b>.</li><li>Else, deals 3 damage (you still can avoid death by using a Bandage/Health kit).</li></ul></td></tr><tr>
+                    <ul style="margin-top:0em"><li>If Dandy is not on the floor, <strong>no enemy rules apply</strong>.</li><li>Else, deals 3 damage (you still can avoid death by using a Bandage/Health kit).</li></ul></td></tr><tr>
                     <td colspan="2" style="text-align: center;">Goob, rare</td>
                 </tr>
                 <tr>
@@ -347,7 +351,7 @@
                 <tr>
                     <td><img src="img/Dandy's Floors/toons/Astro.png" width="75" height="75"></td>
                     <td><img src="img/Dandy's Floors/twisteds/Astro.png" width="75" height="75"></td>
-                    <td rowspan="2">If Astro is on the floor, <b>module shows incorrect amount of machines</b>. Multiply displayed amount by 1.25 and add the amount of batteries on the bomb. Round the result down.<br>Deals 1 damage, if the amount of machines is divisible by 4 and greater than 7.</td></tr><tr>
+                    <td rowspan="2">If Astro is on the floor, <strong>module shows incorrect amount of machines</strong>. Multiply displayed amount by 1.25 and add the amount of batteries on the bomb. Round the result down.<br>Deals 1 damage, if the amount of machines is divisible by 4 and greater than 7.</td></tr><tr>
                     <td colspan="2" style="text-align: center;">Astro, main</td>
                 </tr>
                 <tr>
