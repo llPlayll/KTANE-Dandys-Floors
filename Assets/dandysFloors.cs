@@ -471,6 +471,8 @@ public class dandysFloors : MonoBehaviour
         StrikeMode.gameObject.SetActive(false);
         SubmissionMode.gameObject.SetActive(false);
         if (ignoredModules == null)
+        {
+
             ignoredModules = GetComponent<KMBossModule>().GetIgnoredModules("Dandy's Floors", new string[]{
                 "14",
                 "42",
@@ -525,6 +527,11 @@ public class dandysFloors : MonoBehaviour
                 "The Very Annoying Button",
                 "Whiteout"
             });
+            if (!ignoredModules.Contains("Dandy's Floors"))
+            {
+                ignoredModules = ignoredModules.ToList().Concat(new List<string> { "Dandy's Floors" }).ToArray();
+            }
+        }
 
         if (Bomb.GetSolvableModuleNames().Where(a => !ignoredModules.Contains(a)).ToList().Count < 2) 
         {
