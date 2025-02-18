@@ -82,6 +82,7 @@ public class dandysFloors : MonoBehaviour
 
     void Awake()
     {
+        ModuleId = ModuleIdCounter++;
         DandyIcon.OnInteract += delegate () { DandyIconPress(); return false; };
         foreach (KMSelectable enemy in EnemySelectables) {
             enemy.OnInteract += delegate () { EnemyPress(enemy); return false; };
@@ -633,7 +634,7 @@ public class dandysFloors : MonoBehaviour
             string charBits = NextBits(23);
             characterNum = Convert.ToInt32(charBits, 2) % 23;
             hp = characterNum >= 18 ? 2 : 3;
-            Log($"Requesting 23 bits: {charBits}. You are playing as Toon number {Convert.ToInt32(charBits, 2)} % 23 + 1 - {ToonNames[characterNum]}. You start with {hp} HP.");
+            Log($"Requesting 23 bits: {charBits}. You are playing as Toon number {Convert.ToInt32(charBits, 2)} % 23 - {ToonNames[characterNum]}. You start with {hp} HP.");
         }
     }
 
