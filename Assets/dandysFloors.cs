@@ -69,7 +69,7 @@ public class dandysFloors : MonoBehaviour
     List<int> usedRarities = new List<int>();
     List<int> floorItemsUsed = new List<int>();
     int proteinBarsUsed;
-    int prevBlackout = 0;
+    int prevBlackout = -1;
     
     int floor = -1;
     int curRecoveryFloor = -1;
@@ -699,7 +699,7 @@ public class dandysFloors : MonoBehaviour
             TakeDamage(1);
             takenDamage = true;
         }
-        if (enemies[floor][6] && floor - prevBlackout == 1) //Brightney
+        if (enemies[floor][6] && (floor > 0) && (floor - prevBlackout == 1)) //Brightney
         {
             Log("Brightney: There was a blackout on the previous floor - Brightney deals 1 damage.");
             TakeDamage(1);

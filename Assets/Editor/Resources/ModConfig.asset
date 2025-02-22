@@ -16,6 +16,6 @@ MonoBehaviour:
   author: _Play_
   description: "\u201CCosmo\u201D - what a familiar name...\n\nA module based on the
     Dandy's World Roblox place!\n\nDeveloped by _Play_\nIdea and Manual by rand06"
-  version: 1.14
+  version: 1.15
   outputFolder: build
   previewImage: {fileID: 2800000, guid: a61cf33be56dc944188c61d57d7b32ef, type: 3}
