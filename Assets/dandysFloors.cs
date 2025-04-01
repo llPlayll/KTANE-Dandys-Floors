@@ -829,7 +829,7 @@ public class dandysFloors : MonoBehaviour
             done = true;
             takenDamage = true;
         }
-        if (enemies[floor][16]) //Gigi
+        if (enemies[floor][14]) //Gigi
         {
             if (inventory.Count(i => i == -1) == 3)
             {
