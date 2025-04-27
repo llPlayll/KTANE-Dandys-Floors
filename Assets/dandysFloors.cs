@@ -1110,8 +1110,8 @@ public class dandysFloors : MonoBehaviour
                             SubmissionKeypad[11].OnInteract();
                             if (DelayedSolve)
                             {
-                                yield return string.Format("awardpointsonsolve {0}", 3 * curSolves);
                                 yield return "solve";
+                                yield return string.Format("awardpointsonsolve {0}", 3 * (floor + 1));
                             }
                         }
                         else
