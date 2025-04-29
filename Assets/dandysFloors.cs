@@ -270,12 +270,13 @@ public class dandysFloors : MonoBehaviour
         machines.Add(floorMachines);
         if (enemies[floor][18])
         {
-            floorMachines = (int)(floorMachines * 1.25 + Bomb.GetBatteryCount());
-            Log($"The displayed number of machines is {MachinesText.text}. Because Astro is active, the real number of machines is {MachinesText.text} * 1.25 + {Bomb.GetBatteryCount()} = {machines[floor]}.");
+            int displayedMachines = floorMachines;
+            floorMachines = (int)(displayedMachines * 1.25 + Bomb.GetBatteryCount());
+            Log($"The displayed number of machines is {displayedMachines}. Because Astro is active, the real number of machines is {displayedMachines} * 1.25 + {Bomb.GetBatteryCount()} = {floorMachines}.");
         }
         else Log($"There are {machines[floor]} machines on this floor.");
         ichor += 5 * floorMachines;
-        Log($"Added {5 * floorMachines} ichor from the machines. Player now has {ichor} ichor.");
+        Log($"Added {5 * floorMachines} ichor from the {floorMachines} machines. Player now has {ichor} ichor.");
     }
 
     void GenerateItems()
@@ -674,7 +675,7 @@ public class dandysFloors : MonoBehaviour
             TakeDamage(1);
             takenDamage = true;
         }
-        if (enemies[floor][2] && (isFibonacci(floor + 1)) && (floor > 7))  //Poppy
+        if (enemies[floor][2] && (isFibonacci(floor + 1)) && (floor > 6))  //Poppy
         {
             Log("Poppy: Floor number is present in the Fibonacci sequence and greater than 7 - Poppy deals 1 damage.");
             TakeDamage(1);
@@ -1035,8 +1036,7 @@ public class dandysFloors : MonoBehaviour
 
         for (int i = 0; i < 24; i++) EnemyRenderers[i].material = enemies[displayFloor][i] ? EnemyMaterials[i] : EnemySilhouetteMaterials[i];
         FloorText.text = (displayFloor + 1).ToString();
-        if (enemies[displayFloor][18]) MachinesText.text = ((int)(machines[displayFloor] * 1.25 + Bomb.GetBatteryCount())).ToString();
-        else MachinesText.text = machines[displayFloor].ToString();
+        MachinesText.text = machines[displayFloor].ToString();
 
         if (doIntro) yield return new WaitForSeconds(1.5f);
         if (blackouts[displayFloor])
