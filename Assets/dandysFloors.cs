@@ -38,7 +38,7 @@ public class dandysFloors : MonoBehaviour
 
     static int ModuleIdCounter = 1;
     int ModuleId;
-    private bool ModuleSolved;
+    private bool ModuleSolved, DelayedSolve;
     private string[] ignoredModules;
 
     string[] ToonNames = new string[24] { "Boxten", "Cosmo", "Poppy", "Looey", "Shrimpo", "Tisha", "Brightney", "Connie", "Finn", "Razzle & Dazzle", "Rodger", "Teagan", "Toodles", "Flutter", "Gigi", "Glisten", "Goob", "Scraps", "Astro", "Pebble", "Shelly", "Sprout", "Vee", "Dandy" };
@@ -131,7 +131,7 @@ public class dandysFloors : MonoBehaviour
         else if (keyIdx == 10) input = "";
         else if (keyIdx == 11)
         {
-            if (input == ichor.ToString()) StartCoroutine("Solve");
+            if (input == ichor.ToString()) { StartCoroutine("Solve"); DelayedSolve = true; }
             else
             {
                 Log("Inputted the incorrect number of ichor. Strike!");
@@ -1108,6 +1108,11 @@ public class dandysFloors : MonoBehaviour
                                 yield return new WaitForSeconds(0.1f);
                             }
                             SubmissionKeypad[11].OnInteract();
+                            if (DelayedSolve)
+                            {
+                                yield return "solve";
+                                yield return string.Format("awardpointsonsolve {0}", 3 * (floor + 1));
+                            }
                         }
                         else
                         {
