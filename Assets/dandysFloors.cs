@@ -1082,18 +1082,25 @@ public class dandysFloors : MonoBehaviour
     }
 
 #pragma warning disable 414
-    private readonly string TwitchHelpMessage = @"Use <!{0} submit> to press the submit button during stages. Use <!{0} submit #> to submit an amount of ichor during submission mode. Use <!{0} recovery> to enter recovery mode, and use <!{0} next> to progress stages in recovery mode.";
+    private readonly string TwitchHelpMessage = @"Use <!{0} flower> to press the flower button in the module's initial state. Use <!{0} submit> to press the submit button during stages. Use <!{0} submit #> to submit an amount of ichor during submission mode. Use <!{0} recovery> to enter recovery mode, and use <!{0} next> to progress stages in recovery mode.";
 #pragma warning restore 414
 
     IEnumerator ProcessTwitchCommand(string Command)
     {
         var Args = Command.ToLowerInvariant().Split(new[] { " " }, StringSplitOptions.RemoveEmptyEntries);
         if (Args.Length == 0) yield break;
-        else if (!inStages) yield return "sendtochaterror Unable to execute any commands now!";
         else
         {
             switch (Args[0])
             {
+                case "flower":
+                    if (inStages || inSubmission) yield return "sendtochaterror Unable to press the flower button!";
+                    else
+                    {
+                        yield return null;
+                        DandyIcon.OnInteract();
+                    }
+                    break;
                 case "submit":
                     if (Args.Length == 2 && !inSubmission) yield return "sendtochaterror Unable to submit an answer not in submission mode!";
                     else if (Args.Length != 2 && inSubmission) yield return "sendtochaterror Didn't provide an answer to submit!";
