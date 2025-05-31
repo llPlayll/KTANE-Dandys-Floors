@@ -1178,6 +1178,6 @@ public class dandysFloors : MonoBehaviour
             yield return new WaitForSeconds(0.1f);
         }
         SubmissionKeypad[11].OnInteract();
-        yield return new WaitForSeconds(SolveClip.length);
+        yield return new WaitForSeconds(4);
     }
 }
