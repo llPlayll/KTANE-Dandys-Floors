@@ -117,7 +117,6 @@ public class dandysFloors : MonoBehaviour
             Log("You pressed the submit button when you shouldn't have. Strike!");
         }
         else EnterSubmissionMode();
-
     }
 
     void KeyPress(KMSelectable key)
@@ -548,7 +547,17 @@ public class dandysFloors : MonoBehaviour
         if (!inSubmission)
         {
             int curSolves = Bomb.GetSolvedModuleNames().Where(a => !ignoredModules.Contains(a)).ToList().Count;
-            if (curSolves > lastSolves && done) EnterStrikeMode();
+            if (curSolves > lastSolves && done)
+            {
+                if (!TwitchPlaysActive) EnterStrikeMode();
+                else
+                {
+                    Log("You were supposed to press the submit button, but you didn't! Giving a strike and entering Submission Mode...");
+                    GetComponent<KMBombModule>().HandleStrike();
+                    done = true;
+                    EnterSubmissionMode();
+                }
+            }
             else if (curSolves == Bomb.GetSolvableModuleNames().Where(a => !ignoredModules.Contains(a)).ToList().Count && curSolves > 0) EnterSubmissionMode();
             else
             {
@@ -1063,7 +1072,7 @@ public class dandysFloors : MonoBehaviour
     {
         Log("You were supposed to press the submit button, but you didn't! Detonating the bomb...");
         detonating = true;
-        while (enabled)
+        while (enabled && !ModuleSolved)
         {
             GetComponent<KMBombModule>().HandleStrike();
             yield return new WaitForSeconds(2 / 3f);
@@ -1083,8 +1092,8 @@ public class dandysFloors : MonoBehaviour
 
 #pragma warning disable 414
     private readonly string TwitchHelpMessage = @"Use <!{0} flower> to press the flower button in the module's initial state. Use <!{0} submit> to press the submit button during stages. Use <!{0} submit #> to submit an amount of ichor during submission mode. Use <!{0} recovery> to enter recovery mode, and use <!{0} next> to progress stages in recovery mode.";
+    bool TwitchPlaysActive;
 #pragma warning restore 414
-
     IEnumerator ProcessTwitchCommand(string Command)
     {
         var Args = Command.ToLowerInvariant().Split(new[] { " " }, StringSplitOptions.RemoveEmptyEntries);

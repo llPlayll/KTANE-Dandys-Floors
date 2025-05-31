@@ -29,7 +29,8 @@ public class template : MonoBehaviour
     }
 
     IEnumerator TwitchHandleForcedSolve()
-    {
+    { 
         yield return null;
+        GetComponent<KMSelectable>().OnFocus();
     }
 }
