@@ -80,6 +80,8 @@ public class dandysFloors : MonoBehaviour
     int itemCount;
     bool unicorn;
 
+    bool TPAutosolved;
+
     void Awake()
     {
         ModuleId = ModuleIdCounter++;
@@ -552,8 +554,11 @@ public class dandysFloors : MonoBehaviour
                 if (!TwitchPlaysActive) EnterStrikeMode();
                 else
                 {
-                    Log("You were supposed to press the submit button, but you didn't! Giving a strike and entering Submission Mode...");
-                    GetComponent<KMBombModule>().HandleStrike();
+                    if (!TPAutosolved)
+                    {
+                        Log("You were supposed to press the submit button, but you didn't! Giving a strike and entering Submission Mode...");
+                        GetComponent<KMBombModule>().HandleStrike();
+                    }
                     done = true;
                     EnterSubmissionMode();
                 }
@@ -1160,8 +1165,14 @@ public class dandysFloors : MonoBehaviour
         }
     }
 
-    IEnumerator TwitchHandleForcedSolve()
+    void TwitchHandleForcedSolve()
     {
+        StartCoroutine(HandleForcedSolve());
+    }
+
+    IEnumerator HandleForcedSolve()
+    {
+        TPAutosolved = true;
         StopCoroutine("StrikeStrikeStrike");
         StrikeMode.SetActive(false);
         SubmissionMode.SetActive(true);
